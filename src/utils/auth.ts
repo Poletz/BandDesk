@@ -61,6 +61,9 @@ export const auth = betterAuth({
   }),
 });
 
+export const dbAccounts = db.collection('accounts');
+export const dbUsers = db.collection('users');
+
 export async function getServerSession(): Promise<{ session: Session | null; user: User | null }> {
   const headers = await Headers();
   const session = await auth.api.getSession({

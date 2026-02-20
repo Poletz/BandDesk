@@ -42,13 +42,10 @@ export const LoginForm = () => {
   });
 
   const onValidate = async (values: { email: string; password: string; rememberMe: boolean }) => {
-    console.log(values);
     setAuthLoading(true);
     const { email, password, rememberMe } = values;
-    //Call API to Login?
     try {
       const signIn = await authClient.signIn.email({ email, password, rememberMe });
-      console.log('SIGNIN:', signIn);
       if (signIn.data?.user) {
         router.replace('/');
       }

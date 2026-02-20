@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconEdit } from '@tabler/icons-react';
+import { IconEdit, IconEditOff } from '@tabler/icons-react';
 import axios from 'axios';
 import { Session, User } from 'better-auth';
 import {
@@ -25,6 +25,7 @@ export default function ProfileSettingsPage() {
 
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [editable, setEditable] = useState<boolean>(false);
 
   useEffect(() => {
     const session = async () => {
@@ -78,21 +79,29 @@ export default function ProfileSettingsPage() {
           <Skeleton visible={loading}>
             <Avatar size="lg" radius="xl" />
           </Skeleton>
-          <Skeleton visible={loading}>
-            <Text fw="bold">{user?.name}</Text>
+          <Skeleton flex={1} w="100%" visible={loading}>
+            <Text fw="bold" flex={1} w="100%">
+              {user?.name}
+            </Text>
           </Skeleton>
         </Group>
         <Tooltip label="Change Avatar">
-          <ActionIcon disabled={loading} variant="light" size={40} radius="md">
-            <IconEdit size={25} />
+          <ActionIcon
+            disabled={loading}
+            variant="light"
+            size={40}
+            radius="md"
+            onClick={() => setEditable(editable ? !editable : editable)}
+          >
+            {!editable ? <IconEdit size={25} /> : <IconEditOff size={25} />}
           </ActionIcon>
         </Tooltip>
       </Group>
 
-      <TextInput disabled={loading} label="Name" {...form.getInputProps('name')} />
-      <TextInput disabled={loading} label="Email" {...form.getInputProps('email')} />
+      <TextInput disabled={loading || !editable} label="Name" {...form.getInputProps('name')} />
+      <TextInput disabled={loading || !editable} label="Email" {...form.getInputProps('email')} />
 
-      <Button disabled={loading} onClick={() => form.onSubmit(handleSave)}>
+      <Button disabled={loading || !editable} onClick={() => form.onSubmit(handleSave)}>
         Save changes
       </Button>
     </Stack>

@@ -18,3 +18,10 @@ export const signInSchemaValidation = z.object({
   email: z.email({ error: 'Invalid email' }),
   password: z.string().min(1, { error: 'Field cannot be empty' }),
 });
+
+export const editUserSchemaValidation = z.object({
+  name: z
+    .string()
+    .min(3, { error: 'Name must have at least 3 letters', abort: true })
+    .max(50, { error: 'Name must be less than 50 letters' }),
+});
