@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { IconHome, IconSettings, IconUsersGroup } from '@tabler/icons-react';
+import { IconHome, IconSettings } from '@tabler/icons-react';
 import { User } from 'better-auth';
 import { AppShell, Burger, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -37,7 +37,6 @@ export const DashboardShell = ({ children, user }: { children: React.ReactNode; 
 
       <AppShell.Navbar p="md">
         <NavbarLink href="/dashboard" label="Home" icon={<IconHome size={18} />} />
-        <NavbarLink href="/dashboard/users" label="Users" icon={<IconUsersGroup size={18} />} />
         <NavbarLink href="/dashboard/settings" label="Settings" icon={<IconSettings size={18} />} />
       </AppShell.Navbar>
 
