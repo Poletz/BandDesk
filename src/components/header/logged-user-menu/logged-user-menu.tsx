@@ -2,12 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { IconLogout, IconSettings, IconUser, IconUserCircle } from '@tabler/icons-react';
+import { User } from 'better-auth';
 import { ActionIcon, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
-import { authClient } from '@/utils/auth-client';
 import { confirmModal } from '@/utils/misc';
 
-export const LoggedUserMenu = () => {
-  const { data: session } = authClient.useSession();
+export const LoggedUserMenu = ({ user }: { user: User }) => {
   const router = useRouter();
 
   const component: React.ReactNode = (
@@ -37,8 +36,8 @@ export const LoggedUserMenu = () => {
             <Group>
               <IconUserCircle />
               <Stack gap={2}>
-                <Text fw="bold">{session?.user.name}</Text>
-                <Text size="xs">{session?.user.email}</Text>
+                <Text fw="bold">{user.name}</Text>
+                <Text size="xs">{user.email}</Text>
               </Stack>
             </Group>
           </Menu.Label>

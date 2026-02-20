@@ -1,45 +1,13 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { DashboardShell } from '@/components';
+import { getServerSession } from '@/utils/auth';
 
-import { IconHome, IconSettings, IconUsersGroup } from '@tabler/icons-react';
-import { AppShell, Burger, Group, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { LoggedUserMenu, NavbarLink } from '@/components';
-import { ColorSchemeToggle } from '@/components/header/color-scheme-toggle/color-scheme-toggle';
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { session, user } = await getServerSession();
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
-  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  if (!session || !user) {
+    redirect('/login');
+  }
 
-  return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{
-        width: 280,
-        breakpoint: 'sm',
-        collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
-      }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
-          <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
-
-          <Text fw={700}>Dash Template</Text>
-          <Group ml="auto">
-            <ColorSchemeToggle />
-            <LoggedUserMenu />
-          </Group>
-        </Group>
-      </AppShell.Header>
-
-      <AppShell.Navbar p="md">
-        <NavbarLink href="/dashboard" label="Home" icon={<IconHome size={18} />} />
-        <NavbarLink href="/dashboard/users" label="Users" icon={<IconUsersGroup size={18} />} />
-        <NavbarLink href="/dashboard/settings" label="Settings" icon={<IconSettings size={18} />} />
-      </AppShell.Navbar>
-
-      <AppShell.Main>{children}</AppShell.Main>
-    </AppShell>
-  );
+  return <DashboardShell user={user}>{children}</DashboardShell>;
 }

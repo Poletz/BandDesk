@@ -2,6 +2,7 @@
 
 import Error from 'next/error';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { connection } from 'next/server';
 import { Button } from '@mantine/core';
 import styles from './error.module.css';
 
@@ -10,13 +11,13 @@ interface ErrorSearchParams {
   error: 'access_denied';
 }
 
-export default function ErrorPage() {
+export default async function ErrorPage() {
+  await connection();
   const router = useRouter();
 
   const searchParams: ErrorSearchParams | Record<string, string> = useSearchParams()
     .entries()
     .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
-  console.log(searchParams);
   return (
     <div className={styles.errorDiv}>
       <Error
