@@ -14,7 +14,7 @@ export const HomeComponent = () => {
 
       <QuickActionsWidget />
 
-      <Grid>
+      <Grid mt={20} gutter="xl">
         <GridCol span={4}>
           <LiveWidget />
         </GridCol>
@@ -27,7 +27,7 @@ export const HomeComponent = () => {
             }}
           />
         </GridCol>
-        <GridCol span={4}>
+        <GridCol span={3}>
           <BookingWidget />
         </GridCol>
       </Grid>
