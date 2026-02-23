@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Stack, Tabs, Title } from '@mantine/core';
 import { UserManagementPage } from '@/components/settings';
+import { CalendarComponent } from '@/components/settings/calendar';
+import { DocumentsComponent } from '@/components/settings/documents';
+import { LiveAndBookingComponent } from '@/components/settings/live';
 import ProfileSettingsPage from '@/components/settings/profile/profile';
 import SecuritySettingsPage from '@/components/settings/security/security';
 import { Provider } from '@/interfaces';
@@ -31,6 +34,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         <Tabs.List>
           <Tabs.Tab value="profile">Profile</Tabs.Tab>
           <Tabs.Tab value="security">Account security</Tabs.Tab>
+          <Tabs.Tab value="live">Live & Booking</Tabs.Tab>
+          <Tabs.Tab value="docs">Documents</Tabs.Tab>
+          <Tabs.Tab value="calendar">Calendar</Tabs.Tab>
           <Tabs.Tab value="users">Manage Users</Tabs.Tab>
         </Tabs.List>
 
@@ -39,6 +45,15 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         </Tabs.Panel>
         <Tabs.Panel value="security" style={{ display: 'flex', justifyContent: 'center' }}>
           <SecuritySettingsPage provider={provider} />
+        </Tabs.Panel>
+        <Tabs.Panel value="live" style={{ display: 'flex', justifyContent: 'center' }}>
+          <LiveAndBookingComponent />
+        </Tabs.Panel>
+        <Tabs.Panel value="docs" style={{ display: 'flex', justifyContent: 'center' }}>
+          <DocumentsComponent />
+        </Tabs.Panel>
+        <Tabs.Panel value="calendar" style={{ display: 'flex', justifyContent: 'center' }}>
+          <CalendarComponent />
         </Tabs.Panel>
         <Tabs.Panel value="users" style={{ display: 'flex', justifyContent: 'center' }}>
           <UserManagementPage />
