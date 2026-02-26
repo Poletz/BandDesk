@@ -3,6 +3,8 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { modals } from '@mantine/modals';
+import { BOOKING_STATUSES } from '@/features';
+import { BookingStatus, CalendarItemType } from '@/interfaces';
 
 export const createStore = <T>(state: StateCreator<T>) =>
   createWithEqualityFn<T>()(
@@ -25,4 +27,41 @@ export const confirmModal = (
       onConfirm: cb,
       withCloseButton,
     });
+};
+
+const DEFAULT_STATUS_COLOR = 'gray';
+const bookingStatusColorMap: Record<BookingStatus, string> = {
+  draft: 'gray',
+  requested: 'blue',
+  negotiating: 'orange',
+  confirmed: 'green',
+  rejected: 'red',
+  cancelled: 'dark',
+};
+
+export const getBookingStatusColor = (status?: BookingStatus) => {
+  if (!status) {
+    return DEFAULT_STATUS_COLOR;
+  }
+
+  return bookingStatusColorMap[status] ?? DEFAULT_STATUS_COLOR;
+};
+
+const calendarItemTypeMap: Record<CalendarItemType, string> = {
+  booking: 'Booking',
+  gig: 'Gig',
+  reminder: 'Reminder',
+};
+
+export const getTypeName = (type: CalendarItemType) => {
+  return calendarItemTypeMap[type];
+};
+
+export const bookingStatusLabel: Record<(typeof BOOKING_STATUSES)[number], string> = {
+  draft: 'Draft',
+  requested: 'Requested',
+  negotiating: 'Negotiating',
+  confirmed: 'Confirmed',
+  rejected: 'Rejected',
+  cancelled: 'Cancelled',
 };

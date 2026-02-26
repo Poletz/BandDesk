@@ -39,17 +39,3 @@ export const getUpcomingGigs = (gigs: GigEvent[], limit = 3) => {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, limit);
 };
-
-export const getStatusColor = (status: BookingStatus) => {
-  switch (status) {
-    case 'cancelled':
-    case 'rejected':
-      return 'red.4';
-    case 'confirmed':
-    case 'requested':
-      return 'green.5';
-    case 'draft':
-    case 'negotiating':
-      return 'yellow.7';
-  }
-};

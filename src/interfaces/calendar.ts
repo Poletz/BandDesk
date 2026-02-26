@@ -9,4 +9,6 @@ export interface CalendarItem {
   title: string;
   status?: BookingStatus;
   venueId?: string;
+  bookingId?: string; // Reference ID for booking events
+  gigId?: string; // Reference ID for gig events
 }

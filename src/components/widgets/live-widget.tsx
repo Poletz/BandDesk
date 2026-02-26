@@ -16,8 +16,8 @@ import {
   Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getStatusColor } from '@/features';
 import { useLiveData } from '@/hooks/use-live-data';
+import { getBookingStatusColor } from '@/utils/misc';
 
 export const LiveWidget = () => {
   const [opened, { close, open }] = useDisclosure(false);
@@ -40,7 +40,12 @@ export const LiveWidget = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Text fw={600}>{gig.title}</Text>
-                  <Badge mx={12} variant="light" autoContrast color={getStatusColor(gig.status)}>
+                  <Badge
+                    mx={12}
+                    variant="light"
+                    autoContrast
+                    color={getBookingStatusColor(gig.status)}
+                  >
                     {gig.status.toUpperCase()}
                   </Badge>
                   {gig.notes ? (

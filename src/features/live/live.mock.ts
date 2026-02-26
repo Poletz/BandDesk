@@ -78,22 +78,6 @@ export const liveMockData: LiveMockData = {
       notes: 'Hello BellllllL!',
     },
     {
-      id: 'gig-2',
-      venueId: 'venue-2',
-      date: '2026-03-04T21:00:00.000Z',
-      status: 'confirmed',
-      title: 'Factory Loud Night',
-      setlistName: 'Tour Set A',
-    },
-    {
-      id: 'gig-2',
-      venueId: 'venue-2',
-      date: '2026-03-04T21:00:00.000Z',
-      status: 'confirmed',
-      title: 'Factory Loud Night',
-      setlistName: 'Tour Set A',
-    },
-    {
       id: 'gig-3',
       venueId: 'venue-3',
       date: '2026-03-20T19:30:00.000Z',
