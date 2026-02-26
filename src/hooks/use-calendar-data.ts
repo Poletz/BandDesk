@@ -10,7 +10,7 @@ import {
 import { getBookingStatusColor } from '@/utils/misc';
 
 export const useCalendarData = (selectedDate: Date) => {
-  const sourceData = calendarRepository.listSourceData();
+  const sourceData = useMemo(() => calendarRepository.listSourceData(), []);
 
   return useMemo(() => {
     const venueNameById = getVenueNameMap(sourceData.venues);

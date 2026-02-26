@@ -1,28 +1,40 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { MantineSize } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import { useCalendarData } from '@/hooks/use-calendar-data';
 import { CalendarItem } from '@/interfaces';
 
 export const CalendarWidget = ({
   handleChange,
+  size = 'md',
+  numberOfColumn = 1,
 }: {
   handleChange: (date: Date, items: CalendarItem[]) => void;
+  size?: MantineSize;
+  numberOfColumn?: number;
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const { hasEventsOnDate, selectedDateItems } = useCalendarData(selectedDate ?? new Date());
   const today = dayjs().toDate();
+  const handleRef = useRef(handleChange);
+
+  useEffect(() => {
+    handleRef.current = handleChange;
+  }, [handleChange]);
 
   useEffect(() => {
     if (selectedDate) {
-      handleChange(selectedDate, selectedDateItems);
+      handleRef.current(selectedDate, selectedDateItems);
     }
-  }, [selectedDate, selectedDateItems]);
+  }, [selectedDate]);
 
   return (
     <DatePicker
+      numberOfColumns={numberOfColumn}
+      size={size}
       value={selectedDate}
       onChange={(date) => {
         if (!date) {

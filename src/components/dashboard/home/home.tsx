@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { IconDots } from '@tabler/icons-react';
 import {
   ActionIcon,
@@ -30,8 +30,20 @@ import { bookingStatusLabel, getBookingStatusColor, getTypeName } from '@/utils/
 export const HomeComponent = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const [date, setDate] = useState<Date>(new Date());
-  const [items, setSelectedItems] = useState<CalendarItem[] | []>([]);
+  const [items, setSelectedItems] = useState<CalendarItem[]>([]);
   const { venueNameById } = useLiveData();
+
+  const setDateAndItems = useCallback(
+    (d: Date, nextItems: CalendarItem[]) => {
+      setDate(d);
+      setSelectedItems(nextItems);
+
+      if (nextItems.length) {
+        open();
+      }
+    },
+    [open]
+  );
 
   return (
     <>
@@ -88,16 +100,16 @@ export const HomeComponent = () => {
           <LiveWidget />
         </GridCol>
         <GridCol span={4}>
-          <CalendarWidget
-            handleChange={(d: Date, items) => {
-              setDate(d);
-              setSelectedItems(items);
-
-              if (items.length) {
-                open();
-              }
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
-          />
+          >
+            <CalendarWidget handleChange={setDateAndItems} />
+          </div>
         </GridCol>
         <GridCol span={3}>
           <BookingWidget />
