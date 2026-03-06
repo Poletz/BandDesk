@@ -16,7 +16,7 @@ export const LiveAndBookingComponent = () => {
   const { venues, bookings, upcomingGigs, venueNameById, bookingCountByStatus } = useLiveData();
 
   return (
-    <Stack w="100%" maw={1000} mt={20}>
+    <Stack w="100%" maw={1000}>
       <Title order={3}>Live & Booking</Title>
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>

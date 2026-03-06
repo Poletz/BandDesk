@@ -73,7 +73,7 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <Stack flex={1} mt={32} maw={480}>
+    <Stack flex={1} maw={480}>
       <Group wrap="nowrap">
         <Group wrap="nowrap" justify="flex-start" mr="auto">
           <Skeleton visible={loading}>

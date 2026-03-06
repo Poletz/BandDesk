@@ -19,7 +19,7 @@ export default function SecuritySettingsPage({ provider }: { provider: Provider 
   };
 
   return (
-    <Stack flex={1} maw={480} mt={32}>
+    <Stack flex={1} maw={480}>
       {provider && provider.providerId === 'google' ? (
         <div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
