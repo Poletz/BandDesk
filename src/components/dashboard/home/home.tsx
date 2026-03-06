@@ -11,6 +11,7 @@ import {
   GridCol,
   Group,
   Menu,
+  MenuDivider,
   MenuDropdown,
   MenuItem,
   MenuTarget,
@@ -107,7 +108,7 @@ export const HomeComponent = () => {
                     Show details
                   </MenuItem>
                   <MenuItem leftSection={<IconEdit size={16} />}>Edit event</MenuItem>
-                  <Divider my={8} />
+                  <MenuDivider my={8} />
                   <MenuItem color="red" leftSection={<IconTrash size={16} />}>
                     Delete event
                   </MenuItem>

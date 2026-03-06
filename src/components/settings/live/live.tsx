@@ -2,15 +2,7 @@ import dayjs from 'dayjs';
 import { Badge, Card, Group, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core';
 import { BOOKING_STATUSES } from '@/features';
 import { useLiveData } from '@/hooks/use-live-data';
-
-const bookingStatusLabel: Record<(typeof BOOKING_STATUSES)[number], string> = {
-  draft: 'Draft',
-  requested: 'Requested',
-  negotiating: 'Negotiating',
-  confirmed: 'Confirmed',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-};
+import { bookingStatusLabel } from '@/utils/misc';
 
 export const LiveAndBookingComponent = () => {
   const { venues, bookings, upcomingGigs, venueNameById, bookingCountByStatus } = useLiveData();
