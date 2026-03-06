@@ -24,7 +24,7 @@ export const BookingWidget = () => {
           </Group>
           <NavLink
             label="Go to Live & Booking"
-            href="dashboard/settings?tab=live"
+            href="/dashboard/settings?tab=live"
             rightSection={<IconArrowRight size={12} />}
             variant="subtle"
             bdrs="md"

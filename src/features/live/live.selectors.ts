@@ -1,4 +1,4 @@
-import { BookingRequest, BookingStatus, GigEvent, Venue } from '@/interfaces/live';
+import { BookingRequest, BookingStatus, GigEvent } from '@/interfaces/live';
 
 export const BOOKING_STATUSES: BookingStatus[] = [
   'draft',
@@ -8,13 +8,6 @@ export const BOOKING_STATUSES: BookingStatus[] = [
   'rejected',
   'cancelled',
 ];
-
-export const getVenueNameMap = (venues: Venue[]) => {
-  return venues.reduce<Record<string, string>>((acc, venue) => {
-    acc[venue.id] = venue.name;
-    return acc;
-  }, {});
-};
 
 export const getBookingsCountByStatus = (bookings: BookingRequest[]) => {
   return BOOKING_STATUSES.reduce<Record<BookingStatus, number>>(

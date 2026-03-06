@@ -25,8 +25,10 @@ import { useDisclosure } from '@mantine/hooks';
 import {
   BookingWidget,
   CalendarWidget,
+  DocumentsWidget,
   LiveWidget,
   QuickActionsWidget,
+  UsersWidget,
 } from '@/components/widgets';
 import { useLiveData } from '@/hooks/use-live-data';
 import { CalendarItem } from '@/interfaces';
@@ -128,10 +130,10 @@ export const HomeComponent = () => {
       </Group>
 
       <Grid mt={20} gutter="xl">
-        <GridCol span={4}>
+        <GridCol span={{ base: 12, md: 4 }}>
           <LiveWidget />
         </GridCol>
-        <GridCol span={4}>
+        <GridCol span={{ base: 12, md: 4 }}>
           <div
             style={{
               width: '100%',
@@ -143,8 +145,14 @@ export const HomeComponent = () => {
             <CalendarWidget handleChange={setDateAndItems} />
           </div>
         </GridCol>
-        <GridCol span={3}>
+        <GridCol span={{ base: 12, md: 4 }}>
           <BookingWidget />
+        </GridCol>
+        <GridCol span={{ base: 12, md: 6 }}>
+          <DocumentsWidget />
+        </GridCol>
+        <GridCol span={{ base: 12, md: 6 }}>
+          <UsersWidget />
         </GridCol>
       </Grid>
     </>

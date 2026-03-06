@@ -4,10 +4,9 @@ import {
   calendarRepository,
   getEventDaysSet,
   getItemsForDate,
-  getVenueNameMap,
   toCalendarItems,
 } from '@/features/calendar';
-import { getBookingStatusColor } from '@/utils/misc';
+import { getBookingStatusColor, getVenueNameMap } from '@/utils/misc';
 
 export const useCalendarData = (selectedDate: Date) => {
   const sourceData = useMemo(() => calendarRepository.listSourceData(), []);

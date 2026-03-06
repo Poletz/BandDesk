@@ -20,7 +20,8 @@
       "@/*": ["./src/*"],
       "@/app/*": ["./src/app/*"],
       "@/components/*": ["./src/components/*"],
-      "@/store/*": ["./src/store/*"]
+      "@/store/*": ["./src/store/*"],
+      "@/hooks/*": ["./src/hooks/*"]
     },
     "plugins": [
       {

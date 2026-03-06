@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
-import {
-  getBookingsCountByStatus,
-  getUpcomingGigs,
-  getVenueNameMap,
-  liveRepository,
-} from '@/features';
+import { getBookingsCountByStatus, getUpcomingGigs, liveRepository } from '@/features';
+import { getVenueNameMap } from '@/utils/misc';
 
 export const useLiveData = () => {
   const liveData = liveRepository.list();

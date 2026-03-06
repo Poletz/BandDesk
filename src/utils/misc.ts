@@ -4,7 +4,8 @@ import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { modals } from '@mantine/modals';
 import { BOOKING_STATUSES } from '@/features';
-import { BookingStatus, CalendarItemType } from '@/interfaces';
+import { BookingStatus, CalendarItemType, Venue } from '@/interfaces';
+import { UserRole, UserStatus } from '@/interfaces/users';
 
 export const createStore = <T>(state: StateCreator<T>) =>
   createWithEqualityFn<T>()(
@@ -64,4 +65,23 @@ export const bookingStatusLabel: Record<(typeof BOOKING_STATUSES)[number], strin
   confirmed: 'Confirmed',
   rejected: 'Rejected',
   cancelled: 'Cancelled',
+};
+
+export const roleLabel: Record<UserRole, string> = {
+  owner: 'Owner',
+  manager: 'Manager',
+  member: 'Member',
+};
+
+export const statusColor: Record<UserStatus, string> = {
+  active: 'green',
+  invited: 'blue',
+  disabled: 'gray',
+};
+
+export const getVenueNameMap = (venues: Venue[]) => {
+  return venues.reduce<Record<string, string>>((acc, venue) => {
+    acc[venue.id] = venue.name;
+    return acc;
+  }, {});
 };

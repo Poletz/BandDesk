@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { CalendarItem } from '@/interfaces/calendar';
-import { BookingRequest, GigEvent, Venue } from '@/interfaces/live';
+import { BookingRequest, GigEvent } from '@/interfaces/live';
 
 const mapBookingToCalendarItem = (
   booking: BookingRequest,
@@ -28,13 +28,6 @@ const mapGigToCalendarItem = (
     status: gig.status,
     venueId: gig.venueId,
   };
-};
-
-export const getVenueNameMap = (venues: Venue[]) => {
-  return venues.reduce<Record<string, string>>((acc, venue) => {
-    acc[venue.id] = venue.name;
-    return acc;
-  }, {});
 };
 
 export const toCalendarItems = ({
