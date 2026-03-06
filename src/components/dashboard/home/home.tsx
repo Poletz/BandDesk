@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
-import { IconDots } from '@tabler/icons-react';
+import { IconDots, IconEdit, IconEyeSearch, IconTrash } from '@tabler/icons-react';
 import {
   ActionIcon,
   Badge,
@@ -10,6 +10,10 @@ import {
   Grid,
   GridCol,
   Group,
+  Menu,
+  MenuDropdown,
+  MenuItem,
+  MenuTarget,
   Modal,
   Stack,
   Text,
@@ -51,37 +55,64 @@ export const HomeComponent = () => {
         opened={opened}
         onClose={close}
         title={`Event${items.length > 1 ? 's' : ''} on ${dayjs(date).format('DD/MM/YYYY')}`}
+        size="lg"
       >
         {items.map((item, i) => (
-          <Group key={i.toString().concat('-modal-item')}>
-            <Stack>
-              <Text fw={600} fz={18}>
-                {item.title}
-              </Text>
+          <Group key={i.toString().concat('-modal-item')} bg="dark.4" p={12} bdrs="lg">
+            <Stack gap={4}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Text fw={600} fz={16}>
+                  {item.title}
+                </Text>
+                {item.status ? (
+                  <Badge
+                    mx={12}
+                    variant="light"
+                    autoContrast
+                    color={getBookingStatusColor(item.status)}
+                  >
+                    {bookingStatusLabel[item.status]}
+                  </Badge>
+                ) : undefined}
+              </div>
               <Text fw={300} fz={12}>
-                {getTypeName(item.type)}
+                Type: {getTypeName(item.type)}
               </Text>
               {item.venueId ? (
                 <>
-                  <Divider />
-                  <Text>{venueNameById[item.venueId]}</Text>
+                  <Divider color="dark.0" />
+                  <Text fz="14">Venue: {venueNameById[item.venueId]}</Text>
                 </>
               ) : undefined}
             </Stack>
-            {item.status ? (
-              <Badge
-                mx={12}
-                variant="light"
-                autoContrast
-                color={getBookingStatusColor(item.status)}
-              >
-                {bookingStatusLabel[item.status]}
-              </Badge>
-            ) : undefined}
             <Tooltip label="More actions">
-              <ActionIcon ml="auto">
-                <IconDots />
-              </ActionIcon>
+              <Menu trigger="click-hover">
+                <MenuTarget>
+                  <ActionIcon ml="auto" variant="subtle" color="white" bdrs="xl">
+                    <IconDots />
+                  </ActionIcon>
+                </MenuTarget>
+                <MenuDropdown w={200} p={8}>
+                  {/* <MenuLabel>Pippo</MenuLabel> */}
+                  <MenuItem
+                    leftSection={<IconEyeSearch size={16} />}
+                    component="a"
+                    href="/dashboard/settings?tab=live"
+                  >
+                    Show details
+                  </MenuItem>
+                  <MenuItem leftSection={<IconEdit size={16} />}>Edit event</MenuItem>
+                  <Divider my={8} />
+                  <MenuItem color="red" leftSection={<IconTrash size={16} />}>
+                    Delete event
+                  </MenuItem>
+                </MenuDropdown>
+              </Menu>
             </Tooltip>
           </Group>
         ))}
