@@ -37,7 +37,11 @@ export const DashboardShell = ({ children, user }: { children: React.ReactNode; 
 
       <AppShell.Navbar p="md">
         <NavbarLink href="/dashboard" label="Home" icon={<IconHome size={18} />} />
-        <NavbarLink href="/dashboard/settings" label="Settings" icon={<IconSettings size={18} />} />
+        <NavbarLink
+          href="/dashboard/settings?tab=profile"
+          label="Settings"
+          icon={<IconSettings size={18} />}
+        />
       </AppShell.Navbar>
 
       <AppShell.Main>{children}</AppShell.Main>

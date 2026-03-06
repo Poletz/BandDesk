@@ -12,7 +12,7 @@ export interface NavbarLinkProps {
 
 export const NavbarLink = ({ href, label, icon }: NavbarLinkProps) => {
   const path = usePathname();
-  const active = path === href;
+  const active = path === href.split('?')[0];
 
   return (
     <UnstyledButton

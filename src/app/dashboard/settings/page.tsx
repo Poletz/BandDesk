@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { Stack, Tabs, Title } from '@mantine/core';
 import { UserManagementPage } from '@/components/settings';
@@ -9,11 +10,19 @@ import { DocumentsComponent } from '@/components/settings/documents';
 import { LiveAndBookingComponent } from '@/components/settings/live';
 import ProfileSettingsPage from '@/components/settings/profile/profile';
 import SecuritySettingsPage from '@/components/settings/security/security';
-import { Provider } from '@/interfaces';
+import { Provider, Tab } from '@/interfaces';
+
+const validTabs = new Set(Object.values(Tab));
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  const [tab, setTab] = useState<string>('profile');
   const [provider, setProvider] = useState<Provider | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const tab = useMemo(() => {
+    const value = searchParams.get('tab');
+    return value && validTabs.has(value as Tab) ? (value as Tab) : Tab.PROFILE;
+  }, [searchParams]);
 
   useEffect(() => {
     const getProvider = async () => {
@@ -30,14 +39,22 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
     <Stack>
       <Title order={2}>Settings</Title>
 
-      <Tabs value={tab} onChange={(val) => setTab(val ?? 'profile')}>
-        <Tabs.List>
-          <Tabs.Tab value="profile">Profile</Tabs.Tab>
-          <Tabs.Tab value="security">Account security</Tabs.Tab>
-          <Tabs.Tab value="live">Live & Booking</Tabs.Tab>
-          <Tabs.Tab value="docs">Documents</Tabs.Tab>
-          <Tabs.Tab value="calendar">Calendar</Tabs.Tab>
-          <Tabs.Tab value="users">Manage Users</Tabs.Tab>
+      <Tabs
+        value={tab}
+        onChange={(value) => {
+          const nextTab = value && validTabs.has(value as Tab) ? value : Tab.PROFILE;
+          if (nextTab !== tab) {
+            router.replace(`?tab=${nextTab}`);
+          }
+        }}
+      >
+        <Tabs.List mb={20}>
+          <Tabs.Tab value={Tab.PROFILE}>Profile</Tabs.Tab>
+          <Tabs.Tab value={Tab.SECURITY}>Account security</Tabs.Tab>
+          <Tabs.Tab value={Tab.LIVE}>Live & Booking</Tabs.Tab>
+          <Tabs.Tab value={Tab.DOCS}>Documents</Tabs.Tab>
+          <Tabs.Tab value={Tab.CALENDAR}>Calendar</Tabs.Tab>
+          <Tabs.Tab value={Tab.USERS}>Manage Users</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="profile" style={{ display: 'flex', justifyContent: 'center' }}>
