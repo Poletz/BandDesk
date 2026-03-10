@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/schedule/styles.css';
 import '@mantine/notifications/styles.css';
 import '@gfazioli/mantine-border-animate/styles.css';
 

@@ -16,6 +16,7 @@ import {
   MenuItem,
   MenuTarget,
   Modal,
+  Space,
   Stack,
   Text,
   Title,
@@ -129,11 +130,13 @@ export const HomeComponent = () => {
         <QuickActionsWidget />
       </Group>
 
-      <Grid mt={20} gutter="xl">
-        <GridCol span={{ base: 12, md: 4 }}>
+      <Grid mt={20} gap="lg">
+        <GridCol span={{ base: 12, md: 6 }}>
           <LiveWidget />
+          <Space h="lg" />
+          <BookingWidget />
         </GridCol>
-        <GridCol span={{ base: 12, md: 4 }}>
+        <GridCol span={{ base: 12, md: 6 }}>
           <div
             style={{
               width: '100%',
@@ -144,9 +147,6 @@ export const HomeComponent = () => {
           >
             <CalendarWidget handleChange={setDateAndItems} />
           </div>
-        </GridCol>
-        <GridCol span={{ base: 12, md: 4 }}>
-          <BookingWidget />
         </GridCol>
         <GridCol span={{ base: 12, md: 6 }}>
           <DocumentsWidget />
