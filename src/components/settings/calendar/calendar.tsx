@@ -35,7 +35,7 @@ export const CalendarComponent = () => {
             }}
           />
 
-          <Card withBorder>
+          <Card withBorder h="fit-content">
             <Group justify="space-between" mb="sm">
               <Title order={4}>Events on {dayjs(date).format('DD MMM YYYY')}</Title>
               <Badge variant="light">{items.length}</Badge>
@@ -54,6 +54,7 @@ export const CalendarComponent = () => {
                       <Text size="sm" c="dimmed">
                         {itemTypeLabel[item.type]}
                       </Text>
+                      <Text fw={600}>{item.title}</Text>
                     </div>
                     <Badge color={getBookingStatusColor(item.status)} variant="light">
                       {item.status ?? 'n/a'}
