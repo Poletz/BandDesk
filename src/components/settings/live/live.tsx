@@ -22,7 +22,7 @@ export const LiveAndBookingComponent = () => {
       w="100%"
       maw={1000}
       style={{
-        height: 'calc(100dvh - 55px - 55px - s100px)',
+        height: 'calc(100dvh - 55px - 55px - 100px)',
       }}
     >
       <Stack w="100%">

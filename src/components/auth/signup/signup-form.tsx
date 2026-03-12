@@ -4,43 +4,36 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { IconArrowLeft } from '@tabler/icons-react';
+import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { z } from 'zod/v4';
 import { ActionIcon, Button, Card, Group, PasswordInput, TextInput, Title } from '@mantine/core';
-import { isEmail, useForm } from '@mantine/form';
+import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
 import { authClient } from '@/utils/auth-client';
+import { signUpSchemaValidation } from '@/utils/zod-interfaces';
+
+type SignUpFormValues = z.infer<typeof signUpSchemaValidation>;
 
 export const SignUpForm = () => {
   const [visible, { toggle }] = useDisclosure(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const form = useForm({
+  const form = useForm<SignUpFormValues>({
     initialValues: {
       name: '',
       email: '',
       password: '',
     },
     validateInputOnBlur: true,
-    validate: {
-      name: (val) => (!val ? 'Field cannot be empty' : null),
-      email: isEmail('Invalid Email'),
-      password: (val) => {
-        if (!val) {
-          return 'Field cannot be empty';
-        }
-        if (val.length < 8) {
-          return 'Password must be at least 8 characters';
-        }
-      },
-    },
+    validate: zod4Resolver(signUpSchemaValidation),
   });
 
   const onValidate = async (values: { email: string; password: string; name: string }) => {
-    console.log(values);
     setLoading(true);
+
     const { email, password, name } = values;
-    //Call API to Login?
     try {
       const signUp = await authClient.signUp.email({
         email: email.toLowerCase(),
@@ -48,7 +41,6 @@ export const SignUpForm = () => {
         name,
         image: 'null',
       });
-      console.log('SIGNUP:', signUp);
       if (signUp.error) {
         throw new Error(signUp.error.message);
       }

@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
+import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { z } from 'zod/v4';
 import {
   Button,
   Checkbox,
@@ -13,12 +15,15 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { isEmail, useForm } from '@mantine/form';
+import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
 import { useAuthStore } from '@/store/auth';
 import { authClient } from '@/utils/auth-client';
+import { signInSchemaValidation } from '@/utils/zod-interfaces';
 import { IconGoogleSvg } from './_internal/_icon_svg';
+
+type SignInFormValues = z.infer<typeof signInSchemaValidation>;
 
 export const LoginForm = () => {
   const [visible, { toggle }] = useDisclosure(false);
@@ -28,20 +33,17 @@ export const LoginForm = () => {
 
   const router = useRouter();
 
-  const form = useForm({
+  const form = useForm<SignInFormValues>({
     initialValues: {
       email: '',
       password: '',
       rememberMe: false,
     },
     validateInputOnBlur: true,
-    validate: {
-      email: isEmail('Invalid Email'),
-      password: (val) => (!val ? 'Field cannot be empty' : null),
-    },
+    validate: zod4Resolver(signInSchemaValidation),
   });
 
-  const onValidate = async (values: { email: string; password: string; rememberMe: boolean }) => {
+  const onValidate = async (values: { email: string; password: string; rememberMe?: boolean }) => {
     setAuthLoading(true);
     const { email, password, rememberMe } = values;
     try {
