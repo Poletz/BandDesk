@@ -4,3 +4,4 @@ export * from './calendar';
 export * from './live';
 export * from './documents';
 export * from './users';
+export * from './shared';

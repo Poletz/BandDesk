@@ -5,6 +5,8 @@
         "Settings Page",
         "Auth",
         "Dashboard",
-        "Widgets"
+        "Widgets",
+        "Server API",
+        "Venues"
     ]
 }

@@ -23,6 +23,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { VenueModal } from '@/components/modals';
 import {
   BookingWidget,
   CalendarWidget,
@@ -32,11 +33,12 @@ import {
   UsersWidget,
 } from '@/components/widgets';
 import { useLiveData } from '@/hooks/use-live-data';
-import { CalendarItem } from '@/interfaces';
+import { Actions, CalendarItem, QuickAction } from '@/interfaces';
 import { bookingStatusLabel, getBookingStatusColor, getTypeName } from '@/utils/misc';
 
 export const HomeComponent = () => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [venueOpened, { open: venueOpen, close: venueClose }] = useDisclosure(false);
   const [date, setDate] = useState<Date>(new Date());
   const [items, setSelectedItems] = useState<CalendarItem[]>([]);
   const { venueNameById } = useLiveData();
@@ -53,8 +55,24 @@ export const HomeComponent = () => {
     [open]
   );
 
+  const handleClose = useCallback(venueClose, [venueClose]);
+  const handleClick = useCallback(
+    (type: QuickAction) => {
+      switch (type) {
+        case QuickAction.LIVE:
+        case QuickAction.DOC:
+          break;
+        case QuickAction.VENUE:
+          venueOpen();
+          break;
+      }
+    },
+    [venueOpen]
+  );
+
   return (
     <>
+      <VenueModal opened={venueOpened} close={handleClose} type={Actions.CREATE} />
       <Modal
         opened={opened}
         onClose={close}
@@ -127,7 +145,7 @@ export const HomeComponent = () => {
           <Text c="dimmed">Keep the rock on</Text>
         </div>
 
-        <QuickActionsWidget />
+        <QuickActionsWidget click={handleClick} />
       </Group>
 
       <Grid mt={20} gap="lg">
