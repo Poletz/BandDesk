@@ -3,11 +3,10 @@ import '@mantine/dates/styles.css';
 import '@mantine/schedule/styles.css';
 import '@mantine/notifications/styles.css';
 import '@gfazioli/mantine-border-animate/styles.css';
+import 'react-phone-number-input/style.css';
 
-import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
-import { ModalsProvider } from '@mantine/modals';
-import { Notifications } from '@mantine/notifications';
-import { theme } from '@/store/theme';
+import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
+import { Providers } from './providers';
 
 export const metadata = {
   title: 'Mantine Next.js template',
@@ -26,12 +25,7 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <MantineProvider theme={theme} defaultColorScheme="dark">
-          <ModalsProvider>
-            <Notifications position="top-right" />
-            {children}
-          </ModalsProvider>
-        </MantineProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
