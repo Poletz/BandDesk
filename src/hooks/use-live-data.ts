@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getBookingsCountByStatus, getUpcomingGigs, liveRepository } from '@/features';
 import { getVenueNameMap } from '@/utils/misc';
 
 export const useLiveData = () => {
-  const liveData = liveRepository.list();
+  const query = useQuery({
+    queryKey: ['live-data'],
+    queryFn: liveRepository.list,
+  });
 
-  return useMemo(() => {
+  const computed = useMemo(() => {
+    const liveData = query.data ?? { venues: [], bookings: [], gigs: [] };
     const venueNameById = getVenueNameMap(liveData.venues);
 
     return {
@@ -14,5 +19,12 @@ export const useLiveData = () => {
       upcomingGigs: getUpcomingGigs(liveData.gigs),
       bookingCountByStatus: getBookingsCountByStatus(liveData.bookings),
     };
-  }, [liveData]);
+  }, [query.data]);
+
+  return {
+    ...computed,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
 };

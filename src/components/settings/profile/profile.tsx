@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconEdit, IconEditOff } from '@tabler/icons-react';
-import axios from 'axios';
 import { Session, User } from 'better-auth';
 import {
   ActionIcon,
@@ -19,6 +18,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
+import { http } from '@/utils/http';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function ProfileSettingsPage() {
     const session = async () => {
       setLoading(true);
       try {
-        const { session, user } = (await axios.get('/api/auth/session')).data as {
+        const { session, user } = (await http.get('/api/auth/session')).data as {
           session: Session | null;
           user: User | null;
         };

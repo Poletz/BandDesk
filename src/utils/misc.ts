@@ -80,6 +80,9 @@ export const statusColor: Record<UserStatus, string> = {
 };
 
 export const getVenueNameMap = (venues: Venue[]) => {
+  if (!venues?.length) {
+    return null;
+  }
   return venues.reduce<Record<string, string>>((acc, venue) => {
     acc[venue.id] = venue.name;
     return acc;

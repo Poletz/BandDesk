@@ -1,12 +1,12 @@
 import { BookingRequest, GigEvent, Venue } from '@/interfaces/live';
 
-export interface LiveMockData {
+export interface LiveData {
   venues: Venue[];
   bookings: BookingRequest[];
   gigs: GigEvent[];
 }
 
-export const liveMockData: LiveMockData = {
+export const liveMockData: LiveData = {
   venues: [
     {
       id: 'venue-1',

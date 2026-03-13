@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import axios from 'axios';
 import { Stack, Tabs, Title } from '@mantine/core';
 import { UserManagementPage } from '@/components/settings';
 import { CalendarComponent } from '@/components/settings/calendar';
@@ -11,6 +10,7 @@ import { LiveAndBookingComponent } from '@/components/settings/live';
 import ProfileSettingsPage from '@/components/settings/profile/profile';
 import SecuritySettingsPage from '@/components/settings/security/security';
 import { Provider, Tab } from '@/interfaces';
+import { http } from '@/utils/http';
 
 const validTabs = new Set(Object.values(Tab));
 
@@ -26,7 +26,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
   useEffect(() => {
     const getProvider = async () => {
-      const { data } = await axios.get<{ providers: Provider[] }>('/api/auth/provider');
+      const { data } = await http.get<{ providers: Provider[] }>('/api/auth/provider');
       if (data && data.providers) {
         setProvider(data.providers[0]);
       }

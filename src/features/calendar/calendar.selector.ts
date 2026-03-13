@@ -4,13 +4,13 @@ import { BookingRequest, GigEvent } from '@/interfaces/live';
 
 const mapBookingToCalendarItem = (
   booking: BookingRequest,
-  venueNameById: Record<string, string>
+  venueNameById: Record<string, string> | null
 ): CalendarItem => {
   return {
     id: booking.id,
     type: 'booking',
     date: booking.requestedDate ?? booking.updatedAt,
-    title: `Booking · ${venueNameById[booking.venueId] ?? 'Unknown venue'}`,
+    title: `Booking · ${venueNameById?.[booking.venueId] ?? 'Unknown venue'}`,
     status: booking.status,
     venueId: booking.venueId,
   };
@@ -18,13 +18,13 @@ const mapBookingToCalendarItem = (
 
 const mapGigToCalendarItem = (
   gig: GigEvent,
-  venueNameById: Record<string, string>
+  venueNameById: Record<string, string> | null
 ): CalendarItem => {
   return {
     id: gig.id,
     type: 'gig',
     date: gig.date,
-    title: `${gig.title} · ${venueNameById[gig.venueId] ?? 'Unknown venue'}`,
+    title: `${gig.title} · ${venueNameById?.[gig.venueId] ?? 'Unknown venue'}`,
     status: gig.status,
     venueId: gig.venueId,
   };
@@ -37,7 +37,7 @@ export const toCalendarItems = ({
 }: {
   bookings: BookingRequest[];
   gigs: GigEvent[];
-  venueNameById: Record<string, string>;
+  venueNameById: Record<string, string> | null;
 }) => {
   return [
     ...bookings.map((booking) => mapBookingToCalendarItem(booking, venueNameById)),

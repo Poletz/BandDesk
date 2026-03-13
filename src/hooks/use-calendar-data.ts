@@ -1,17 +1,19 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import {
-  calendarRepository,
-  getEventDaysSet,
-  getItemsForDate,
-  toCalendarItems,
-} from '@/features/calendar';
+import { useQuery } from '@tanstack/react-query';
+import { liveRepository } from '@/features';
+import { getEventDaysSet, getItemsForDate, toCalendarItems } from '@/features/calendar';
 import { getBookingStatusColor, getVenueNameMap } from '@/utils/misc';
 
 export const useCalendarData = (selectedDate: Date) => {
-  const sourceData = useMemo(() => calendarRepository.listSourceData(), []);
+  const query = useQuery({
+    queryKey: ['calendar-data'],
+    queryFn: liveRepository.list,
+  });
 
-  return useMemo(() => {
+  const computed = useMemo(() => {
+    const sourceData = query.data ?? { bookings: [], gigs: [], venues: [] };
+
     const venueNameById = getVenueNameMap(sourceData.venues);
     const items = toCalendarItems({
       bookings: sourceData.bookings,
@@ -28,5 +30,12 @@ export const useCalendarData = (selectedDate: Date) => {
       hasEventsOnDate: (date: Date) => eventDaysSet.has(dayjs(date).format('YYYY-MM-DD')),
       getBookingStatusColor,
     };
-  }, [selectedDate, sourceData]);
+  }, [selectedDate, query.data]);
+
+  return {
+    ...computed,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
 };

@@ -145,7 +145,7 @@ export const HomeComponent = () => {
           <Text c="dimmed">Keep the rock on</Text>
         </div>
 
-        <QuickActionsWidget click={handleClick} />
+        <QuickActionsWidget onAction={handleClick} />
       </Group>
 
       <Grid mt={20} gap="lg">

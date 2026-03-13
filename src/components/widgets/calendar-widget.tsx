@@ -36,6 +36,11 @@ export const CalendarWidget = ({
       numberOfColumns={numberOfColumn}
       size={size}
       value={selectedDate}
+      styles={{
+        day: {
+          borderRadius: '50%',
+        },
+      }}
       onChange={(date) => {
         if (!date) {
           return;
@@ -49,7 +54,6 @@ export const CalendarWidget = ({
           style: hasEvents
             ? {
                 border: '1px solid var(--mantine-color-blue-5)',
-                borderRadius: '50%',
               }
             : undefined,
         };

@@ -5,13 +5,13 @@ import classes from './notification.module.css';
 export interface NotificationParams {
   message: string;
   title: string;
-  duration: number | boolean;
-  color: DefaultMantineColor;
+  duration?: number | boolean;
+  color?: DefaultMantineColor;
   loading?: boolean;
   close?: boolean;
-  onClose: ({ ...prop }) => void;
-  onOpen: ({ ...prop }) => void;
-  addClass: boolean;
+  onClose?: ({ ...prop }) => void;
+  onOpen?: ({ ...prop }) => void;
+  addClass?: boolean;
 }
 
 export const showMessage = ({

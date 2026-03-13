@@ -2,9 +2,16 @@ import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAxiosError } from 'axios';
 import { z } from 'zod/v4';
+import { Venue as FormVenue } from '@/interfaces';
+import { apiError } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
-import { parseVenueSchema, Venue, venueResponseSchema, venueSchema } from '@/utils/zod-interfaces';
+import {
+  validParseVenueSchema,
+  Venue,
+  venueResponseSchema,
+  venueSchema,
+} from '@/utils/zod-interfaces';
 
 const venuesDB = db.collection('venues');
 
@@ -12,7 +19,7 @@ export async function GET() {
   const { user } = await getServerSession();
 
   if (!user) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
   }
 
   try {
@@ -49,14 +56,15 @@ export async function POST(req: NextRequest) {
   const { user } = await getServerSession();
 
   if (!user) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
   }
 
   try {
-    const data = await req.json();
+    const data: Omit<FormVenue, 'id'> = await req.json();
 
-    const parsedData = parseVenueSchema.safeParse(data);
+    const parsedData = validParseVenueSchema.safeParse(data);
 
+    console.log(parsedData);
     if (!parsedData.success) {
       return NextResponse.json(
         {
@@ -69,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     const now = dayjs().toISOString();
     const venue = {
-      ...parsedData,
+      ...parsedData.data,
       ownerId: user.id,
       createdAt: now,
       updatedAt: now,

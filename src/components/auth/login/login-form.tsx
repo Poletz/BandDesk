@@ -25,7 +25,11 @@ import { IconGoogleSvg } from './_internal/_icon_svg';
 
 type SignInFormValues = z.infer<typeof signInSchemaValidation>;
 
-export const LoginForm = () => {
+interface LoginFormProps {
+  redirectUrl?: string;
+}
+
+export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
   const [visible, { toggle }] = useDisclosure(false);
 
   const authLoading = useAuthStore((s) => s.authLoading);
@@ -49,7 +53,7 @@ export const LoginForm = () => {
     try {
       const signIn = await authClient.signIn.email({ email, password, rememberMe });
       if (signIn.data?.user) {
-        router.replace('/');
+        router.replace(redirectUrl ?? '/');
       }
     } catch (err) {
       console.error(err);
@@ -68,7 +72,7 @@ export const LoginForm = () => {
     try {
       const gooleSignIn = await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/',
+        callbackURL: redirectUrl ?? '/',
         errorCallbackURL: '/error?authError=google',
       });
       console.log('GOOGLE SIGNIN:', gooleSignIn);

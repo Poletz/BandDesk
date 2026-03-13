@@ -15,8 +15,10 @@ import { useLiveData } from '@/hooks/use-live-data';
 import { bookingStatusLabel } from '@/utils/misc';
 
 export const LiveAndBookingComponent = () => {
-  const { venues, bookings, upcomingGigs, venueNameById, bookingCountByStatus } = useLiveData();
+  const { venues, bookings, upcomingGigs, venueNameById, bookingCountByStatus, isLoading } =
+    useLiveData();
 
+  console.log(isLoading);
   return (
     <ScrollArea
       w="100%"
@@ -79,7 +81,7 @@ export const LiveAndBookingComponent = () => {
             <Table.Tbody>
               {bookings.map((booking) => (
                 <Table.Tr key={booking.id}>
-                  <Table.Td>{venueNameById[booking.venueId]}</Table.Td>
+                  <Table.Td>{venueNameById?.[booking.venueId]}</Table.Td>
                   <Table.Td>
                     {booking.requestedDate
                       ? dayjs(booking.requestedDate).format('DD MMM YYYY')

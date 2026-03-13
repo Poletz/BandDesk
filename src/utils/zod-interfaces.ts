@@ -1,5 +1,11 @@
 import { z } from 'zod/v4';
 
+const emptyToUndefined = (schema: z.ZodTypeAny) =>
+  z.preprocess((val) => (val === '' ? undefined : val), schema);
+
+const valueToNull = (schema: z.ZodTypeAny) =>
+  z.preprocess((val) => (val === undefined || val === '' ? null : val), schema);
+
 //#region AUTH
 export const signUpSchemaValidation = z.object({
   name: z.string().trim().min(2, { error: 'Name must be at least 2 letters' }),
@@ -41,8 +47,8 @@ export const venueSchema = z.object({
   contactEmail: z.email().nullable().optional(),
   contactPhone: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
-  createdAt: z.date().nullable().optional(),
-  updatedAt: z.date().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
 });
 
 export const venueResponseSchema = venueSchema.extend({
@@ -53,11 +59,21 @@ export type Venue = z.infer<typeof venueResponseSchema>;
 
 export const parseVenueSchema = z.object({
   name: z.string().trim().min(2, { error: 'Venue name must be at least 2 characters' }),
-  city: z.string().trim().optional(),
-  address: z.string().trim().optional(),
-  contactName: z.string().trim().optional(),
-  contactEmail: z.email({ error: 'Invalid contact email' }).optional(),
-  contactPhone: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
+  city: emptyToUndefined(z.string().trim().optional()),
+  address: emptyToUndefined(z.string().trim().optional()),
+  contactName: emptyToUndefined(z.string().trim().optional()),
+  contactEmail: emptyToUndefined(z.email({ error: 'Invalid contact email' }).optional()),
+  contactPhone: emptyToUndefined(z.string().trim().optional()),
+  notes: emptyToUndefined(z.string().trim().optional()),
+});
+
+export const validParseVenueSchema = z.object({
+  name: z.string().trim().min(2, { error: 'Venue name must be at least 2 characters' }),
+  city: valueToNull(z.string().trim().nullable()),
+  address: valueToNull(z.string().trim().nullable()),
+  contactName: valueToNull(z.string().trim().nullable()),
+  contactEmail: valueToNull(z.email({ error: 'Invalid contact email' }).nullable()),
+  contactPhone: valueToNull(z.string().trim().nullable()),
+  notes: valueToNull(z.string().trim().nullable()),
 });
 //#endregion
