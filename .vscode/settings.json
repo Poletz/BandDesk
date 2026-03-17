@@ -7,6 +7,7 @@
         "Dashboard",
         "Widgets",
         "Server API",
-        "Venues"
+        "Venues",
+        "Bookings"
     ]
 }
