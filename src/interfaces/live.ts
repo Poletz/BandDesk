@@ -26,6 +26,7 @@ export interface BookingRequest {
   createdAt: string; // ISO
   updatedAt: string; // ISO
   notes?: string;
+  gigId?: string;
 }
 
 export interface GigEvent {
@@ -36,4 +37,5 @@ export interface GigEvent {
   title: string;
   setlistName?: string;
   notes?: string;
+  bookingId?: string;
 }

@@ -76,4 +76,49 @@ export const validParseVenueSchema = z.object({
   contactPhone: valueToNull(z.string().trim().nullable()),
   notes: valueToNull(z.string().trim().nullable()),
 });
+
+const bookingStatusSchema = z.enum([
+  'draft',
+  'requested',
+  'negotiating',
+  'confirmed',
+  'rejected',
+  'cancelled',
+]);
+
+export const bookingSchema = z.object({
+  venueId: z.string().trim().min(1),
+  requestedDate: z.string().nullable().optional(),
+  status: bookingStatusSchema,
+  feeProposal: z.number().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  venueName: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  ownerId: z.string(),
+  gigId: z.string().nullable().optional(),
+  gig: z.any().nullable().optional(),
+});
+
+export const bookingResponseSchema = bookingSchema.omit({ ownerId: true }).extend({
+  id: z.string(),
+});
+
+export type Booking = z.infer<typeof bookingResponseSchema>;
+
+export const parseBookingSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }),
+  requestedDate: emptyToUndefined(z.iso.datetime().optional()),
+  status: bookingStatusSchema,
+  feeProposal: z.number().positive().optional(),
+  notes: emptyToUndefined(z.string().trim().optional()),
+});
+
+export const validParseBookingSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }),
+  requestedDate: valueToNull(z.iso.datetime().nullable()),
+  status: bookingStatusSchema,
+  feeProposal: valueToNull(z.number().positive().nullable()),
+  notes: valueToNull(z.string().trim().nullable()),
+});
 //#endregion
