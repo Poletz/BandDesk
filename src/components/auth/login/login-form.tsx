@@ -102,7 +102,7 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
         Sign In
       </Title>
       <Text m={0} size="sm">
-        with your email to access&nbsp;<strong>Dash-Template</strong>
+        with your email to access&nbsp;<strong>BandDesk</strong>
       </Text>
       <form onSubmit={form.onSubmit(onValidate)} style={{ width: '100%' }}>
         <TextInput

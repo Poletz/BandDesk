@@ -27,7 +27,7 @@ export const DashboardShell = ({ children, user }: { children: React.ReactNode; 
           <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
           <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
 
-          <Text fw={700}>Dash Template</Text>
+          <Text fw={700}>BandDesk — BDX</Text>
           <Group ml="auto">
             <ColorSchemeToggle />
             <LoggedUserMenu user={user} />

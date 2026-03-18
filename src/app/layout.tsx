@@ -9,8 +9,8 @@ import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
 import { Providers } from './providers';
 
 export const metadata = {
-  title: 'Mantine Next.js template',
-  description: 'I am using Mantine with Next.js!',
+  title: 'BandDesk - BDX',
+  description: 'BandDesk — Organize your band, your sets, your gigs!',
 };
 
 export default function RootLayout({ children }: { children: any }) {
