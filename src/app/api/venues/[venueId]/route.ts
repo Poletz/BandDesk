@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAxiosError } from 'axios';
-import { z } from 'zod/v4';
 import { Venue } from '@/interfaces';
-import { apiError } from '@/utils/api-response-helper';
+import {
+  emptyUpdateError,
+  forbiddenItemError,
+  isAuthenticatedUser,
+  notFoundError,
+  sessionExpiredError,
+  validationError,
+} from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
 import { parseVenueSchema } from '@/utils/zod-interfaces';
@@ -12,8 +18,8 @@ const venuesDB = db.collection('venues');
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/venues/[venueId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -21,13 +27,13 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/venues/[ven
     const doc = await venuesDB.doc(venueId).get();
 
     if (!doc.exists) {
-      return apiError('Venue not found', 'NOT_FOUND', 404);
+      return notFoundError('Venue');
     }
 
     const venue = doc.data();
 
     if (venue?.ownerId !== user.id) {
-      return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+      return forbiddenItemError();
     }
 
     return NextResponse.json<{ venue: Venue }>({
@@ -49,8 +55,8 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/venues/[ven
 export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   const { venueId } = await ctx.params;
@@ -58,27 +64,21 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueI
   const parsedData = parseVenueSchema.safeParse(data);
 
   if (!parsedData.success) {
-    return NextResponse.json(
-      {
-        message: 'Validation error',
-        errors: z.treeifyError(parsedData.error),
-      },
-      { status: 400 }
-    );
+    return validationError(parsedData.error);
   }
 
   if (Object.keys(parsedData.data).length === 0) {
-    return NextResponse.json({ message: 'Nothing to update' }, { status: 400 });
+    return emptyUpdateError();
   }
 
   const doc = await venuesDB.doc(venueId).get();
 
   if (!doc.exists) {
-    return apiError('Venue not found', 'NOT_FOUND', 404);
+    return notFoundError('Venue');
   }
 
   if (doc.data()?.ownerId !== user.id) {
-    return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+    return forbiddenItemError();
   }
 
   await venuesDB.doc(venueId).update({
@@ -100,19 +100,19 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueI
 export async function DELETE(_req: Request, ctx: RouteContext<'/api/venues/[venueId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   const { venueId } = await ctx.params;
   const doc = await venuesDB.doc(venueId).get();
 
   if (!doc.exists) {
-    return apiError('Venue not found', 'NOT_FOUND', 404);
+    return notFoundError('Venue');
   }
 
   if (doc.data()?.ownerId !== user.id) {
-    return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+    return forbiddenItemError();
   }
 
   await venuesDB.doc(venueId).delete();

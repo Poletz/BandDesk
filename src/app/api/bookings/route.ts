@@ -1,8 +1,11 @@
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAxiosError } from 'axios';
-import { z } from 'zod/v4';
-import { apiError } from '@/utils/api-response-helper';
+import {
+  isAuthenticatedUser,
+  sessionExpiredError,
+  validationError,
+} from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
 import {
@@ -17,8 +20,8 @@ const bookingsDB = db.collection('bookings');
 export async function GET() {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -53,8 +56,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -63,13 +66,7 @@ export async function POST(req: NextRequest) {
     const parsedData = validParseBookingSchema.safeParse(data);
 
     if (!parsedData.success) {
-      return NextResponse.json(
-        {
-          message: 'Validation error',
-          errors: z.treeifyError(parsedData.error),
-        },
-        { status: 400 }
-      );
+      return validationError(parsedData.error);
     }
 
     const now = dayjs().toISOString();

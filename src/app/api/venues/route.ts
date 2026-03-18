@@ -1,9 +1,12 @@
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAxiosError } from 'axios';
-import { z } from 'zod/v4';
 import { Venue as FormVenue } from '@/interfaces';
-import { apiError } from '@/utils/api-response-helper';
+import {
+  isAuthenticatedUser,
+  sessionExpiredError,
+  validationError,
+} from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
 import {
@@ -18,8 +21,8 @@ const venuesDB = db.collection('venues');
 export async function GET() {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -55,8 +58,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -66,13 +69,7 @@ export async function POST(req: NextRequest) {
 
     console.log(parsedData);
     if (!parsedData.success) {
-      return NextResponse.json(
-        {
-          message: 'Validation error',
-          errors: z.treeifyError(parsedData.error),
-        },
-        { status: 400 }
-      );
+      return validationError(parsedData.error);
     }
 
     const now = dayjs().toISOString();

@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAxiosError } from 'axios';
-import { z } from 'zod/v4';
-import { apiError } from '@/utils/api-response-helper';
+import {
+  emptyUpdateError,
+  forbiddenItemError,
+  isAuthenticatedUser,
+  notFoundError,
+  sessionExpiredError,
+  validationError,
+} from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
 import { Booking, parseBookingSchema } from '@/utils/zod-interfaces';
@@ -13,8 +19,8 @@ const venueDB = db.collection('venues');
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   try {
@@ -22,13 +28,13 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[b
     const doc = await bookingsDB.doc(bookingId).get();
 
     if (!doc.exists) {
-      return apiError('Booking not found', 'NOT_FOUND', 404);
+      return notFoundError('Venue');
     }
 
     const booking = doc.data();
 
     if (booking?.ownerId !== user.id) {
-      return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+      return forbiddenItemError();
     }
 
     const gig = booking?.gigId ? await gigsDB.doc(booking.gigId).get() : null;
@@ -61,8 +67,8 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[b
 export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   const { bookingId } = await ctx.params;
@@ -70,27 +76,21 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[book
   const parsedData = parseBookingSchema.partial().safeParse(data);
 
   if (!parsedData.success) {
-    return NextResponse.json(
-      {
-        message: 'Validation error',
-        errors: z.treeifyError(parsedData.error),
-      },
-      { status: 400 }
-    );
+    return validationError(parsedData.error);
   }
 
   if (Object.keys(parsedData.data).length === 0) {
-    return NextResponse.json({ message: 'Nothing to update' }, { status: 400 });
+    return emptyUpdateError();
   }
 
   const doc = await bookingsDB.doc(bookingId).get();
 
   if (!doc.exists) {
-    return apiError('Booking not found', 'NOT_FOUND', 404);
+    return notFoundError('Venue');
   }
 
   if (doc.data()?.ownerId !== user.id) {
-    return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+    return forbiddenItemError();
   }
 
   await bookingsDB.doc(bookingId).update({
@@ -118,19 +118,19 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[book
 export async function DELETE(_req: Request, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
   const { user } = await getServerSession();
 
-  if (!user) {
-    return apiError('Session expired! Please login again.', 'SESSION_EXPIRED', 401);
+  if (!isAuthenticatedUser(user)) {
+    return sessionExpiredError();
   }
 
   const { bookingId } = await ctx.params;
   const doc = await bookingsDB.doc(bookingId).get();
 
   if (!doc.exists) {
-    return apiError('Booking not found', 'NOT_FOUND', 404);
+    return notFoundError('Venue');
   }
 
   if (doc.data()?.ownerId !== user.id) {
-    return apiError('You cannot access this item.', 'UNAUTHORIZED', 403);
+    return forbiddenItemError();
   }
 
   await bookingsDB.doc(bookingId).delete();

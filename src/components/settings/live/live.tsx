@@ -112,25 +112,21 @@ export const LiveAndBookingComponent = () => {
         height: 'calc(100dvh - 55px - 55px - 100px)',
       }}
     >
-      {selectedVenue && (
-        <VenueModal
-          close={closeVenueModal}
-          opened={openedVenueModal}
-          type={venueModalType}
-          venue={selectedVenue ?? undefined}
-          onSubmit={handleVenueSubmit}
-        />
-      )}
-      {selectedBooking && (
-        <BookingModal
-          close={closeBookingModal}
-          opened={openedBookingModal}
-          type={bookingModalType}
-          booking={selectedBooking ?? undefined}
-          venues={venues}
-          onSubmit={handleBookingSubmit}
-        />
-      )}
+      <VenueModal
+        close={closeVenueModal}
+        opened={openedVenueModal}
+        type={venueModalType}
+        venue={selectedVenue ?? undefined}
+        onSubmit={handleVenueSubmit}
+      />
+      <BookingModal
+        close={closeBookingModal}
+        opened={openedBookingModal}
+        type={bookingModalType}
+        booking={selectedBooking ?? undefined}
+        venues={venues}
+        onSubmit={handleBookingSubmit}
+      />
       <Stack w="100%">
         <Title order={3}>Live & Booking</Title>
 
