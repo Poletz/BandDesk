@@ -34,6 +34,7 @@ import {
 } from '@/components/widgets';
 import { useLiveData } from '@/hooks/use-live-data';
 import { Actions, CalendarItem, QuickAction } from '@/interfaces';
+import { useAuthStore } from '@/store/auth';
 import { bookingStatusLabel, getBookingStatusColor, getTypeName } from '@/utils/misc';
 
 export const HomeComponent = () => {
@@ -42,6 +43,8 @@ export const HomeComponent = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [items, setSelectedItems] = useState<CalendarItem[]>([]);
   const { venueNameById } = useLiveData();
+
+  const user = useAuthStore((s) => s.user);
 
   const setDateAndItems = useCallback(
     (d: Date, nextItems: CalendarItem[]) => {
@@ -108,7 +111,7 @@ export const HomeComponent = () => {
               {item.venueId ? (
                 <>
                   <Divider color="dark.0" />
-                  <Text fz="14">Venue: {venueNameById[item.venueId]}</Text>
+                  <Text fz="14">Venue: {venueNameById?.[item.venueId]}</Text>
                 </>
               ) : undefined}
             </Stack>
@@ -141,7 +144,7 @@ export const HomeComponent = () => {
       </Modal>
       <Group>
         <div style={{ marginRight: 'auto' }}>
-          <Title order={2}>Welcome, User</Title>
+          <Title order={2}>Welcome, {user?.name ?? 'User'}!</Title>
           <Text c="dimmed">Keep the rock on</Text>
         </div>
 

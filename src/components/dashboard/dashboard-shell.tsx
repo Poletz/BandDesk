@@ -1,16 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IconHome, IconSettings } from '@tabler/icons-react';
 import { User } from 'better-auth';
 import { AppShell, Burger, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useAuthStore } from '@/store/auth';
 import { ColorSchemeToggle, LoggedUserMenu } from '../header';
 import { NavbarLink } from '../navbar';
 
 export const DashboardShell = ({ children, user }: { children: React.ReactNode; user: User }) => {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+
+  const { setUser } = useAuthStore();
+
+  useEffect(() => {
+    setUser(user);
+  }, [user, setUser]);
 
   return (
     <AppShell
