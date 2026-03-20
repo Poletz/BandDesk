@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
 
-const emptyToUndefined = (schema: z.ZodTypeAny) =>
+const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === '' ? undefined : val), schema);
 
-const valueToNull = (schema: z.ZodTypeAny) =>
+const valueToNull = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === undefined || val === '' ? null : val), schema);
 
 //#region AUTH
@@ -48,14 +48,19 @@ const bookingStatusSchema = z.enum([
   'cancelled',
 ]);
 
+const bookingGigLinkStatusSchema = z.enum(['unlinked', 'linked', 'broken']);
+
 export const gigEventSchema = z.object({
   venueId: z.string().trim().min(1),
   date: z.iso.datetime(),
   status: bookingStatusSchema,
   title: z.string().trim().min(1),
-  setlistName: z.string().optional(),
-  notes: z.string().optional(),
-  bookingId: z.string().optional(),
+  // setlistName: z.string().optional(),
+  // notes: z.string().optional(),
+  // bookingId: z.string().optional(),
+  setlistName: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  bookingId: z.string().nullable().optional(),
   ownerId: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -111,6 +116,7 @@ export const bookingSchema = z.object({
   ownerId: z.string(),
   gigId: z.string().nullable().optional(),
   gig: gigEventSchema.nullable().optional(),
+  gigLinkStatus: bookingGigLinkStatusSchema.optional(),
 });
 
 export const bookingResponseSchema = bookingSchema.omit({ ownerId: true }).extend({
@@ -125,6 +131,15 @@ export const parseBookingSchema = z.object({
   status: bookingStatusSchema,
   feeProposal: z.number().positive().optional(),
   notes: emptyToUndefined(z.string().trim().optional()),
+});
+
+export const parseBookingPatchSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }).optional(),
+  requestedDate: valueToNull(z.iso.datetime().nullable()).optional(),
+  status: bookingStatusSchema.optional(),
+  feeProposal: valueToNull(z.number().positive().nullable()).optional(),
+  notes: valueToNull(z.string().trim().nullable()).optional(),
+  gigId: valueToNull(z.string().trim().nullable()).optional(),
 });
 
 export const validParseBookingSchema = z.object({
@@ -145,17 +160,27 @@ export const parseGigEventSchema = z.object({
   venueId: z.string().trim().min(1, { error: 'Venue is required' }),
   date: z.iso.datetime({ error: 'Gig date must be a valid ISO datetime' }),
   status: bookingStatusSchema,
-  title: z.string().trim().min(1, { error: 'Gig title must be at least 2 characters' }),
+  title: z.string().trim().min(1, { error: 'Gig title must be at least 1 characters' }),
   setlistName: emptyToUndefined(z.string().trim().optional()),
   notes: emptyToUndefined(z.string().trim().optional()),
   bookingId: emptyToUndefined(z.string().trim().optional()),
+});
+
+export const parseGigEventPatchSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }).optional(),
+  date: z.iso.datetime({ error: 'Gig date must be a valid ISO datetime' }).optional(),
+  status: bookingStatusSchema.optional(),
+  title: z.string().trim().min(1, { error: 'Gig title must be at least 1 characters' }).optional(),
+  setlistName: valueToNull(z.string().trim().nullable()).optional(),
+  notes: valueToNull(z.string().trim().nullable()).optional(),
+  bookingId: valueToNull(z.string().trim().nullable()).optional(),
 });
 
 export const validParseGigEventSchema = z.object({
   venueId: z.string().trim().min(1, { error: 'Venue is required' }),
   date: z.iso.datetime({ error: 'Gig date must be a valid ISO datetime' }),
   status: bookingStatusSchema,
-  title: z.string().trim().min(1, { error: 'Gig title must be at least 2 characters' }),
+  title: z.string().trim().min(1, { error: 'Gig title must be at least 1 characters' }),
   setlistName: valueToNull(z.string().trim().nullable()),
   notes: valueToNull(z.string().trim().nullable()),
   bookingId: valueToNull(z.string().trim().nullable()),

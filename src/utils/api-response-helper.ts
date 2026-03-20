@@ -47,3 +47,13 @@ export function validationError(error: ZodError) {
 export function emptyUpdateError() {
   return NextResponse.json({ message: EMPTY_UPDATE_MESSAGE }, { status: 400 });
 }
+
+export class GigBookingRuleError extends Error {
+  constructor(
+    message: string,
+    readonly status = 400,
+    readonly code: 'VALIDATION_ERROR' | 'NOT_FOUND' | 'UNAUTHORIZED' = 'VALIDATION_ERROR'
+  ) {
+    super(message);
+  }
+}

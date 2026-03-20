@@ -35,35 +35,41 @@ export const LiveWidget = () => {
         <Divider />
 
         <ScrollAreaAutosize>
-          {upcomingGigs.map((gig) => (
-            <Group key={gig.id} justify="space-between" align="flex-start">
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text fw={600}>{gig.title}</Text>
-                  <Badge
-                    mx={12}
-                    variant="light"
-                    autoContrast
-                    color={getBookingStatusColor(gig.status)}
-                  >
-                    {gig.status.toUpperCase()}
-                  </Badge>
-                  {gig.notes ? (
-                    <Popover opened={opened}>
-                      <PopoverTarget>
-                        <IconNotes onMouseEnter={open} onMouseLeave={close} />
-                      </PopoverTarget>
-                      <PopoverDropdown>{gig.notes}</PopoverDropdown>
-                    </Popover>
-                  ) : null}
+          {upcomingGigs.length ? (
+            upcomingGigs.map((gig) => (
+              <Group key={gig.id} justify="space-between" align="flex-start">
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Text fw={600}>{gig.title}</Text>
+                    <Badge
+                      mx={12}
+                      variant="light"
+                      autoContrast
+                      color={getBookingStatusColor(gig.status)}
+                    >
+                      {gig.status.toUpperCase()}
+                    </Badge>
+                    {gig.notes ? (
+                      <Popover opened={opened}>
+                        <PopoverTarget>
+                          <IconNotes onMouseEnter={open} onMouseLeave={close} />
+                        </PopoverTarget>
+                        <PopoverDropdown>{gig.notes}</PopoverDropdown>
+                      </Popover>
+                    ) : null}
+                  </div>
+                  <Text size="sm" c="dimmed">
+                    {venueNameById?.[gig.venueId]}
+                  </Text>
                 </div>
-                <Text size="sm" c="dimmed">
-                  {venueNameById[gig.venueId]}
-                </Text>
-              </div>
-              <Text size="sm">{dayjs(gig.date).format('DD MMM')}</Text>
-            </Group>
-          ))}
+                <Text size="sm">{dayjs(gig.date).format('DD MMM')}</Text>
+              </Group>
+            ))
+          ) : (
+            <Text fz="md" style={{ textAlign: 'center' }}>
+              No upcoming Live scheduled
+            </Text>
+          )}
         </ScrollAreaAutosize>
       </Stack>
     </Card>

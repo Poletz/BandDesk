@@ -19,24 +19,30 @@ export const DocumentsWidget = () => {
         <Divider />
 
         <Stack gap="xs">
-          {recentDocuments.map((document) => (
-            <Group key={document.id} justify="space-between" align="flex-start">
-              <Group gap="xs" align="center">
-                <IconFileDescription size={16} />
-                <div>
-                  <Text fw={600} size="sm" lineClamp={1}>
-                    {document.title}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {document.fileName}
-                  </Text>
-                </div>
+          {recentDocuments.length ? (
+            recentDocuments.map((document) => (
+              <Group key={document.id} justify="space-between" align="flex-start">
+                <Group gap="xs" align="center">
+                  <IconFileDescription size={16} />
+                  <div>
+                    <Text fw={600} size="sm" lineClamp={1}>
+                      {document.title}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {document.fileName}
+                    </Text>
+                  </div>
+                </Group>
+                <Text size="xs" c="dimmed">
+                  {dayjs(document.uploadedAt).format('DD MMM')}
+                </Text>
               </Group>
-              <Text size="xs" c="dimmed">
-                {dayjs(document.uploadedAt).format('DD MMM')}
-              </Text>
-            </Group>
-          ))}
+            ))
+          ) : (
+            <Text fz="md" style={{ textAlign: 'center' }}>
+              No Documents available
+            </Text>
+          )}
         </Stack>
 
         <NavLink
