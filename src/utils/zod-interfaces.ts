@@ -39,6 +39,28 @@ export const editUserSchemaValidation = z.object({
 //#endregion
 
 //#region DB SCHEMAS
+const bookingStatusSchema = z.enum([
+  'draft',
+  'requested',
+  'negotiating',
+  'confirmed',
+  'rejected',
+  'cancelled',
+]);
+
+export const gigEventSchema = z.object({
+  venueId: z.string().trim().min(1),
+  date: z.iso.datetime(),
+  status: bookingStatusSchema,
+  title: z.string().trim().min(1),
+  setlistName: z.string().optional(),
+  notes: z.string().optional(),
+  bookingId: z.string().optional(),
+  ownerId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 export const venueSchema = z.object({
   name: z.string(),
   city: z.string().nullable().optional(),
@@ -77,15 +99,6 @@ export const validParseVenueSchema = z.object({
   notes: valueToNull(z.string().trim().nullable()),
 });
 
-const bookingStatusSchema = z.enum([
-  'draft',
-  'requested',
-  'negotiating',
-  'confirmed',
-  'rejected',
-  'cancelled',
-]);
-
 export const bookingSchema = z.object({
   venueId: z.string().trim().min(1),
   requestedDate: z.string().nullable().optional(),
@@ -97,7 +110,7 @@ export const bookingSchema = z.object({
   updatedAt: z.string(),
   ownerId: z.string(),
   gigId: z.string().nullable().optional(),
-  gig: z.any().nullable().optional(),
+  gig: gigEventSchema.nullable().optional(),
 });
 
 export const bookingResponseSchema = bookingSchema.omit({ ownerId: true }).extend({
@@ -120,5 +133,31 @@ export const validParseBookingSchema = z.object({
   status: bookingStatusSchema,
   feeProposal: valueToNull(z.number().positive().nullable()),
   notes: valueToNull(z.string().trim().nullable()),
+});
+
+export const gigEventResponseSchema = gigEventSchema.extend({
+  id: z.string(),
+});
+
+export type GigEvent = z.infer<typeof gigEventResponseSchema>;
+
+export const parseGigEventSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }),
+  date: z.iso.datetime({ error: 'Gig date must be a valid ISO datetime' }),
+  status: bookingStatusSchema,
+  title: z.string().trim().min(1, { error: 'Gig title must be at least 2 characters' }),
+  setlistName: emptyToUndefined(z.string().trim().optional()),
+  notes: emptyToUndefined(z.string().trim().optional()),
+  bookingId: emptyToUndefined(z.string().trim().optional()),
+});
+
+export const validParseGigEventSchema = z.object({
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }),
+  date: z.iso.datetime({ error: 'Gig date must be a valid ISO datetime' }),
+  status: bookingStatusSchema,
+  title: z.string().trim().min(1, { error: 'Gig title must be at least 2 characters' }),
+  setlistName: valueToNull(z.string().trim().nullable()),
+  notes: valueToNull(z.string().trim().nullable()),
+  bookingId: valueToNull(z.string().trim().nullable()),
 });
 //#endregion

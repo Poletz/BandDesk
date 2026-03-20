@@ -10,7 +10,7 @@ import {
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
-import { Booking, parseBookingSchema } from '@/utils/zod-interfaces';
+import { Booking, gigEventResponseSchema, parseBookingSchema } from '@/utils/zod-interfaces';
 
 const bookingsDB = db.collection('bookings');
 const gigsDB = db.collection('gigs');
@@ -40,17 +40,19 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[b
     const gig = booking?.gigId ? await gigsDB.doc(booking.gigId).get() : null;
     const venueName = booking?.venueId ? await venueDB.doc(booking.venueId).get() : null;
 
+    const parsedGig = gigEventResponseSchema.safeParse(gig?.data());
+
     return NextResponse.json<{ booking: Booking }>({
       booking: {
         id: doc.id,
         venueId: booking.venueId,
+        status: booking.status,
         venueName: venueName?.data()?.name,
         requestedDate: booking.requestedDate ?? null,
-        status: booking.status,
         feeProposal: booking.feeProposal ?? null,
         notes: booking.notes ?? null,
         gigId: booking.gigId ?? null,
-        gig: { ...gig?.data() },
+        gig: parsedGig.success ? { ...parsedGig.data } : null,
         createdAt: booking.createdAt,
         updatedAt: booking.updatedAt,
       },

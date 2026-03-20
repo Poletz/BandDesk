@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
-import { IconEdit, IconEye, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconEye, IconPlus, IconTicket, IconTrash } from '@tabler/icons-react';
 import { isAxiosError } from 'axios';
 import {
   ActionIcon,
@@ -24,6 +24,7 @@ import { useLiveData } from '@/hooks/use-live-data';
 import { Actions, BookingRequest, Venue } from '@/interfaces';
 import { http } from '@/utils/http';
 import { bookingStatusLabel, confirmModal } from '@/utils/misc';
+import { parseGigEventSchema } from '@/utils/zod-interfaces';
 
 export const LiveAndBookingComponent = () => {
   const {
@@ -35,6 +36,7 @@ export const LiveAndBookingComponent = () => {
     isLoading,
     refetch,
   } = useLiveData();
+  const [loading, setLoading] = useState(false);
   const [openedVenueModal, { open: openVenueModal, close: closeVenueModal }] = useDisclosure(false);
   const [openedBookingModal, { open: openBookingModal, close: closeBookingModal }] =
     useDisclosure(false);
@@ -46,7 +48,7 @@ export const LiveAndBookingComponent = () => {
 
   const handleVenueSubmit = useCallback(
     async (values?: Omit<Venue, 'id'>, type?: Actions) => {
-      if (!values) {
+      if (!values || type === Actions.VIEW) {
         setSelectedVenue(null);
         closeVenueModal();
         return;
@@ -81,7 +83,7 @@ export const LiveAndBookingComponent = () => {
         closeBookingModal();
         return;
       }
-
+      setLoading(true);
       try {
         if (type === Actions.CREATE) {
           await http.post('/api/bookings', values);
@@ -99,9 +101,11 @@ export const LiveAndBookingComponent = () => {
         if (isAxiosError(err)) {
           showNotification({ message: 'Unable to save booking.', color: 'red' });
         }
+      } finally {
+        setLoading(false);
       }
     },
-    [selectedBooking, refetch, closeBookingModal]
+    [selectedBooking, refetch, closeBookingModal, setLoading]
   );
 
   return (
@@ -171,6 +175,7 @@ export const LiveAndBookingComponent = () => {
         <Group mt={20} justify="space-between">
           <Title order={4}>Booking requests</Title>
           <Button
+            disabled={loading}
             leftSection={<IconPlus size={16} />}
             onClick={() => {
               setSelectedBooking(null);
@@ -183,7 +188,7 @@ export const LiveAndBookingComponent = () => {
         </Group>
         {/* <Divider my="sm" /> */}
         <Card withBorder>
-          <Skeleton visible={isLoading}>
+          <Skeleton visible={isLoading || loading}>
             <Table striped highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
@@ -198,7 +203,7 @@ export const LiveAndBookingComponent = () => {
                 {bookings.length ? (
                   bookings.map((booking) => (
                     <Table.Tr key={booking.id}>
-                      <Table.Td>{venueNameById?.[booking.venueId] ?? 'N/A'}</Table.Td>{' '}
+                      <Table.Td>{venueNameById?.[booking.venueId] ?? 'N/A'}</Table.Td>
                       <Table.Td>
                         {booking.requestedDate
                           ? dayjs(booking.requestedDate).format('DD MMM YYYY')
@@ -235,6 +240,44 @@ export const LiveAndBookingComponent = () => {
                             <IconEdit />
                           </ActionIcon>
                           <ActionIcon
+                            disabled={booking.status !== 'confirmed'}
+                            variant="subtle"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={confirmModal(
+                              'Create gig?',
+                              'This action adds a gig linked to this booking. Do you wish to continue?',
+                              { confirm: 'Create a Gig', cancel: 'Cancel' },
+                              async () => {
+                                try {
+                                  const gig = parseGigEventSchema.parse({
+                                    venueId: booking.venueId,
+                                    date: booking.requestedDate,
+                                    status: booking.status,
+                                    title: `${venueNameById?.[booking.venueId]} - Gig`,
+                                    setlistName: undefined,
+                                    notes: booking.notes,
+                                    bookingId: booking.id,
+                                  });
+                                  setLoading(true);
+                                  await http.post('/api/gigs', gig);
+                                  showNotification({ message: 'Gig created.', color: 'green' });
+                                  await refetch();
+                                } catch (error) {
+                                  showNotification({
+                                    message: 'An error occurred. Please try again later.',
+                                    color: 'red',
+                                  });
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            )}
+                          >
+                            <IconTicket />
+                          </ActionIcon>
+                          <ActionIcon
                             variant="subtle"
                             c="red"
                             size="md"
@@ -246,12 +289,133 @@ export const LiveAndBookingComponent = () => {
                               { confirm: 'Delete', cancel: 'Cancel' },
                               async () => {
                                 try {
+                                  setLoading(true);
                                   await http.delete(`/api/bookings/${booking.id}`);
                                   showNotification({ message: 'Booking deleted.', color: 'green' });
                                   await refetch();
                                 } catch {
                                   showNotification({
                                     message: 'Unable to delete booking.',
+                                    color: 'red',
+                                  });
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            )}
+                          >
+                            <IconTrash />
+                          </ActionIcon>
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))
+                ) : (
+                  <Table.Tr style={{ pointerEvents: 'none' }}>
+                    <Table.Td
+                      style={{
+                        textAlign: 'center',
+                        padding: '16px 0 0 0',
+                      }}
+                      colSpan={5}
+                    >
+                      No bookings found...
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+              </Table.Tbody>
+            </Table>
+          </Skeleton>
+        </Card>
+        <Group mt={20} justify="space-between">
+          <Title order={4}>Venues</Title>
+          <Button
+            disabled={loading}
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              setSelectedVenue(null);
+              setVenueModalType(Actions.CREATE);
+              openVenueModal();
+            }}
+          >
+            New venue
+          </Button>
+        </Group>
+        <Card withBorder>
+          <Skeleton visible={isLoading || loading}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Venue Name</Table.Th>
+                  <Table.Th>Address</Table.Th>
+                  <Table.Th>City</Table.Th>
+                  <Table.Th>Contact Name</Table.Th>
+                  <Table.Th>Phone</Table.Th>
+                  <Table.Th />
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {venues.length ? (
+                  venues.map((venue) => (
+                    <Table.Tr
+                      key={venue.id}
+                      // style={{ cursor: 'pointer' }}
+                      // onClick={() => {
+                      //   setSelectedVenue(venue);
+                      //   openVenueModal();
+                      // }}
+                    >
+                      <Table.Td>{venue.name}</Table.Td>
+                      <Table.Td>{venue.address ?? 'N/A'}</Table.Td>
+                      <Table.Td>{venue.city ?? 'N/A'}</Table.Td>
+                      <Table.Td>{venue.contactName ?? 'N/A'}</Table.Td>
+                      <Table.Td>{venue.contactPhone ?? 'N/A'}</Table.Td>
+                      <Table.Td>
+                        <Group gap={6} justify="flex-end" wrap="nowrap">
+                          <ActionIcon
+                            variant="subtle"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={() => {
+                              setSelectedVenue(venue);
+                              setVenueModalType(Actions.VIEW);
+                              openVenueModal();
+                            }}
+                          >
+                            <IconEye />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={() => {
+                              setSelectedVenue(venue);
+                              setVenueModalType(Actions.UPDATE);
+                              openVenueModal();
+                            }}
+                          >
+                            <IconEdit />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            c="red"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={confirmModal(
+                              'Delete venue?',
+                              'This action cannot be undone.',
+                              { confirm: 'Delete', cancel: 'Cancel' },
+                              async () => {
+                                try {
+                                  await http.delete(`/api/venues/${venue.id}`);
+                                  showNotification({ message: 'Venue deleted.', color: 'green' });
+                                  await refetch();
+                                } catch {
+                                  showNotification({
+                                    message: 'Unable to delete venue.',
                                     color: 'red',
                                   });
                                 }
@@ -265,113 +429,18 @@ export const LiveAndBookingComponent = () => {
                     </Table.Tr>
                   ))
                 ) : (
-                  <Table.Tr flex={1}>
-                    <Table.Td colSpan={5}>No bookings found...</Table.Td>
-                  </Table.Tr>
-                )}
-              </Table.Tbody>
-            </Table>
-          </Skeleton>
-        </Card>
-        <Group mt={20} justify="space-between">
-          <Title order={4}>Venues</Title>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => {
-              setSelectedVenue(null);
-              setVenueModalType(Actions.CREATE);
-              openVenueModal();
-            }}
-          >
-            New venue
-          </Button>
-        </Group>
-        <Card withBorder>
-          <Skeleton visible={isLoading}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Venue Name</Table.Th>
-                  <Table.Th>Address</Table.Th>
-                  <Table.Th>City</Table.Th>
-                  <Table.Th>Contact Name</Table.Th>
-                  <Table.Th>Phone</Table.Th>
-                  <Table.Th />
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {venues.map((venue) => (
-                  <Table.Tr
-                    key={venue.id}
-                    // style={{ cursor: 'pointer' }}
-                    // onClick={() => {
-                    //   setSelectedVenue(venue);
-                    //   openVenueModal();
-                    // }}
-                  >
-                    <Table.Td>{venue.name}</Table.Td>
-                    <Table.Td>{venue.address ?? 'N/A'}</Table.Td>
-                    <Table.Td>{venue.city ?? 'N/A'}</Table.Td>
-                    <Table.Td>{venue.contactName ?? 'N/A'}</Table.Td>
-                    <Table.Td>{venue.contactPhone ?? 'N/A'}</Table.Td>
-                    <Table.Td>
-                      <Group gap={6} justify="flex-end" wrap="nowrap">
-                        <ActionIcon
-                          variant="subtle"
-                          size="md"
-                          p={4}
-                          bdrs="xl"
-                          onClick={() => {
-                            setSelectedVenue(venue);
-                            setVenueModalType(Actions.VIEW);
-                            openVenueModal();
-                          }}
-                        >
-                          <IconEye />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          size="md"
-                          p={4}
-                          bdrs="xl"
-                          onClick={() => {
-                            setSelectedVenue(venue);
-                            setVenueModalType(Actions.UPDATE);
-                            openVenueModal();
-                          }}
-                        >
-                          <IconEdit />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          c="red"
-                          size="md"
-                          p={4}
-                          bdrs="xl"
-                          onClick={confirmModal(
-                            'Delete venue?',
-                            'This action cannot be undone.',
-                            { confirm: 'Delete', cancel: 'Cancel' },
-                            async () => {
-                              try {
-                                await http.delete(`/api/venues/${venue.id}`);
-                                showNotification({ message: 'Venue deleted.', color: 'green' });
-                                await refetch();
-                              } catch {
-                                showNotification({
-                                  message: 'Unable to delete venue.',
-                                  color: 'red',
-                                });
-                              }
-                            }
-                          )}
-                        >
-                          <IconTrash />
-                        </ActionIcon>
-                      </Group>
+                  <Table.Tr style={{ pointerEvents: 'none' }}>
+                    <Table.Td
+                      style={{
+                        textAlign: 'center',
+                        padding: '16px 0 0 0',
+                      }}
+                      colSpan={6}
+                    >
+                      No venues found...
                     </Table.Td>
                   </Table.Tr>
-                ))}
+                )}
               </Table.Tbody>
             </Table>
           </Skeleton>

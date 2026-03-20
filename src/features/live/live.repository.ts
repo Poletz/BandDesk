@@ -1,36 +1,25 @@
-import { BookingRequest, Venue } from '@/interfaces';
+import { BookingRequest, GigEvent, Venue } from '@/interfaces';
 import { http } from '@/utils/http';
-import { LiveData, liveMockData } from './live.mock';
+import { LiveData } from './live.mock';
 
-const cloneData = (): LiveData => {
-  return {
-    venues: [...liveMockData.venues],
-    bookings: [...liveMockData.bookings],
-    gigs: [...liveMockData.gigs],
-  };
-};
+// const cloneData = (): LiveData => {
+//   return {
+//     venues: [...liveMockData.venues],
+//     bookings: [...liveMockData.bookings],
+//     gigs: [...liveMockData.gigs],
+//   };
+// };
 
-let inMemoryLiveData = cloneData();
-
-type BookingApiItem = Omit<BookingRequest, 'requestedDate' | 'feeProposal' | 'notes'> & {
-  requestedDate?: string | null;
-  feeProposal?: number | null;
-  notes?: string | null;
-};
+// let inMemoryLiveData = cloneData();
 
 const getBookings = async () => {
-  const { data } = await http.get<{ bookings: BookingApiItem[] }>('/api/bookings');
+  const { data } = await http.get<{ bookings: BookingRequest[] }>('/api/bookings');
 
   if (!data) {
     return [];
   }
 
-  return data.bookings.map((booking) => ({
-    ...booking,
-    requestedDate: booking.requestedDate ?? undefined,
-    feeProposal: booking.feeProposal ?? undefined,
-    notes: booking.notes ?? undefined,
-  }));
+  return data.bookings;
 };
 
 const getVenues = async () => {
@@ -42,13 +31,25 @@ const getVenues = async () => {
   return data.venues;
 };
 
+const getGigs = async () => {
+  const { data } = await http.get<{ gigs: GigEvent[] }>('/api/gigs');
+
+  if (!data) {
+    return [];
+  }
+
+  return data.gigs;
+};
+
 export const liveRepository = {
   list: async (): Promise<LiveData> => ({
-    ...inMemoryLiveData,
+    gigs: await getGigs(),
     venues: await getVenues(),
     bookings: await getBookings(),
   }),
-  reset: () => {
-    inMemoryLiveData = cloneData();
-  },
+  reset: () => ({
+    gigs: [],
+    venues: [],
+    bookings: [],
+  }),
 };
