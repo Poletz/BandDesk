@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
 
     const parsedData = validParseVenueSchema.safeParse(data);
 
-    console.log(parsedData);
     if (!parsedData.success) {
       return validationError(parsedData.error);
     }

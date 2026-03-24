@@ -29,7 +29,7 @@ export const CalendarWidget = ({
     if (selectedDate) {
       handleRef.current(selectedDate, selectedDateItems);
     }
-  }, [selectedDate]);
+  }, [selectedDate, selectedDateItems]);
 
   return (
     <DatePicker

@@ -70,12 +70,11 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
   const signInWithGoogle = async () => {
     setAuthLoading(true);
     try {
-      const gooleSignIn = await authClient.signIn.social({
+      await authClient.signIn.social({
         provider: 'google',
         callbackURL: redirectUrl ?? '/',
         errorCallbackURL: '/error?authError=google',
       });
-      console.log('GOOGLE SIGNIN:', gooleSignIn);
     } catch (err) {
       console.error(err);
     } finally {

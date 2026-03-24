@@ -3,6 +3,8 @@
 import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
 import { IconDots, IconEdit, IconEyeSearch, IconTrash } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import {
   ActionIcon,
   Badge,
@@ -23,7 +25,8 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { VenueModal } from '@/components/modals';
+import { showNotification } from '@mantine/notifications';
+import { BookingModal, VenueModal } from '@/components/modals';
 import {
   BookingWidget,
   CalendarWidget,
@@ -33,16 +36,22 @@ import {
   UsersWidget,
 } from '@/components/widgets';
 import { useLiveData } from '@/hooks/use-live-data';
-import { Actions, CalendarItem, QuickAction } from '@/interfaces';
+import { Actions, BookingRequest, CalendarItem, QuickAction } from '@/interfaces';
 import { useAuthStore } from '@/store/auth';
-import { bookingStatusLabel, getBookingStatusColor, getTypeName } from '@/utils/misc';
+import { http } from '@/utils/http';
+import { bookingStatusLabel, confirmModal, getBookingStatusColor, getTypeName } from '@/utils/misc';
 
 export const HomeComponent = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const [venueOpened, { open: venueOpen, close: venueClose }] = useDisclosure(false);
+  const [bookingOpened, { open: bookingOpen, close: bookingClose }] = useDisclosure(false);
   const [date, setDate] = useState<Date>(new Date());
   const [items, setSelectedItems] = useState<CalendarItem[]>([]);
-  const { venueNameById } = useLiveData();
+  const [bookingModalType, setBookingModalType] = useState<Actions>(Actions.VIEW);
+  const [selectedBooking, setSelectedBooking] = useState<BookingRequest | null>(null);
+  const [isSavingBooking, setIsSavingBooking] = useState(false);
+  const queryClient = useQueryClient();
+  const { venueNameById, venues } = useLiveData();
 
   const user = useAuthStore((s) => s.user);
 
@@ -59,6 +68,98 @@ export const HomeComponent = () => {
   );
 
   const handleClose = useCallback(venueClose, [venueClose]);
+
+  const refreshLiveAndCalendarData = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['live-data'] }),
+      queryClient.invalidateQueries({ queryKey: ['calendar-data'] }),
+    ]);
+  }, [queryClient]);
+
+  const handleOpenBookingModal = useCallback(
+    async (item: CalendarItem, modalType: Actions) => {
+      if (item.type !== 'booking') {
+        showNotification({
+          color: 'yellow',
+          message: 'This event type cannot be edited here yet.',
+        });
+        return;
+      }
+
+      try {
+        const { data } = await http.get<{ booking: BookingRequest }>(`/api/bookings/${item.id}`);
+        setSelectedBooking(data.booking);
+        setBookingModalType(modalType);
+        bookingOpen();
+      } catch (error) {
+        showNotification({
+          color: 'red',
+          message: isAxiosError(error)
+            ? (error.response?.data?.message ?? 'Unable to load booking details.')
+            : 'Unable to load booking details.',
+        });
+      }
+    },
+    [bookingOpen]
+  );
+
+  const handleBookingSubmit = useCallback(
+    async (values?: Omit<BookingRequest, 'id' | 'createdAt' | 'updatedAt'>, type?: Actions) => {
+      if (!values || !selectedBooking || type !== Actions.UPDATE) {
+        setSelectedBooking(null);
+        bookingClose();
+        return;
+      }
+
+      setIsSavingBooking(true);
+      try {
+        await http.patch(`/api/bookings/${selectedBooking.id}`, values);
+        showNotification({ message: 'Booking updated successfully.', color: 'green' });
+        setSelectedBooking(null);
+        bookingClose();
+        await refreshLiveAndCalendarData();
+      } catch (error) {
+        showNotification({
+          color: 'red',
+          message: isAxiosError(error)
+            ? (error.response?.data?.message ?? 'Unable to update booking.')
+            : 'Unable to update booking.',
+        });
+      } finally {
+        setIsSavingBooking(false);
+      }
+    },
+    [bookingClose, refreshLiveAndCalendarData, selectedBooking]
+  );
+
+  const handleDeleteEvent = useCallback(
+    (item: CalendarItem) =>
+      confirmModal(
+        'Delete event?',
+        'This action cannot be undone.',
+        { confirm: 'Delete', cancel: 'Cancel' },
+        async () => {
+          const endpoint =
+            item.type === 'booking' ? `/api/bookings/${item.id}` : `/api/gigs/${item.id}`;
+
+          try {
+            await http.delete(endpoint);
+            setSelectedItems((prev) => prev.filter((prevItem) => prevItem.id !== item.id));
+            showNotification({ message: 'Event deleted.', color: 'green' });
+            await refreshLiveAndCalendarData();
+          } catch (error) {
+            showNotification({
+              color: 'red',
+              message: isAxiosError(error)
+                ? (error.response?.data?.message ?? 'Unable to delete event.')
+                : 'Unable to delete event.',
+            });
+          }
+        }
+      ),
+    [refreshLiveAndCalendarData]
+  );
+
   const handleClick = useCallback(
     (type: QuickAction) => {
       switch (type) {
@@ -76,6 +177,21 @@ export const HomeComponent = () => {
   return (
     <>
       <VenueModal opened={venueOpened} close={handleClose} type={Actions.CREATE} />
+      <BookingModal
+        opened={bookingOpened}
+        close={() => {
+          if (isSavingBooking) {
+            return;
+          }
+
+          setSelectedBooking(null);
+          bookingClose();
+        }}
+        type={bookingModalType}
+        booking={selectedBooking ?? undefined}
+        venues={venues}
+        onSubmit={handleBookingSubmit}
+      />
       <Modal
         opened={opened}
         onClose={close}
@@ -126,14 +242,24 @@ export const HomeComponent = () => {
                   {/* <MenuLabel>Pippo</MenuLabel> */}
                   <MenuItem
                     leftSection={<IconEyeSearch size={16} />}
-                    component="a"
-                    href="/dashboard/settings?tab=live"
+                    // component="a"
+                    // href="/dashboard/settings?tab=live"
+                    onClick={() => handleOpenBookingModal(item, Actions.VIEW)}
                   >
                     Show details
                   </MenuItem>
-                  <MenuItem leftSection={<IconEdit size={16} />}>Edit event</MenuItem>
+                  <MenuItem
+                    leftSection={<IconEdit size={16} />}
+                    onClick={() => handleOpenBookingModal(item, Actions.UPDATE)}
+                  >
+                    Edit event
+                  </MenuItem>
                   <MenuDivider my={8} />
-                  <MenuItem color="red" leftSection={<IconTrash size={16} />}>
+                  <MenuItem
+                    color="red"
+                    leftSection={<IconTrash size={16} />}
+                    onClick={handleDeleteEvent(item)}
+                  >
                     Delete event
                   </MenuItem>
                 </MenuDropdown>
