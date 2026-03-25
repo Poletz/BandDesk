@@ -11,7 +11,7 @@ import {
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
-import { parseVenueSchema } from '@/utils/zod-interfaces';
+import { validParseVenueSchema } from '@/utils/zod-interfaces';
 
 const venuesDB = db.collection('venues');
 
@@ -61,7 +61,7 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueI
 
   const { venueId } = await ctx.params;
   const data = await req.json();
-  const parsedData = parseVenueSchema.safeParse(data);
+  const parsedData = validParseVenueSchema.safeParse(data);
 
   if (!parsedData.success) {
     return validationError(parsedData.error);

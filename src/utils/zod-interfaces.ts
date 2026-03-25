@@ -55,9 +55,6 @@ export const gigEventSchema = z.object({
   date: z.iso.datetime(),
   status: bookingStatusSchema,
   title: z.string().trim().min(1),
-  // setlistName: z.string().optional(),
-  // notes: z.string().optional(),
-  // bookingId: z.string().optional(),
   setlistName: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
   bookingId: z.string().nullable().optional(),
@@ -74,6 +71,7 @@ export const venueSchema = z.object({
   contactEmail: z.email().nullable().optional(),
   contactPhone: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+  ownerId: z.string(),
   createdAt: z.string().nullable().optional(),
   updatedAt: z.string().nullable().optional(),
 });
@@ -106,7 +104,7 @@ export const validParseVenueSchema = z.object({
 
 export const bookingSchema = z.object({
   venueId: z.string().trim().min(1),
-  requestedDate: z.string().nullable().optional(),
+  requestedDate: z.iso.datetime().nullable().optional(),
   status: bookingStatusSchema,
   feeProposal: z.number().nullable().optional(),
   notes: z.string().nullable().optional(),
@@ -127,7 +125,9 @@ export type Booking = z.infer<typeof bookingResponseSchema>;
 
 export const parseBookingSchema = z.object({
   venueId: z.string().trim().min(1, { error: 'Venue is required' }),
-  requestedDate: emptyToUndefined(z.iso.datetime().optional()),
+  requestedDate: emptyToUndefined(
+    z.iso.datetime({ error: 'Booking date must be a valid ISO datetime' }).optional()
+  ),
   status: bookingStatusSchema,
   feeProposal: z.number().positive().optional(),
   notes: emptyToUndefined(z.string().trim().optional()),
@@ -135,7 +135,9 @@ export const parseBookingSchema = z.object({
 
 export const parseBookingPatchSchema = z.object({
   venueId: z.string().trim().min(1, { error: 'Venue is required' }).optional(),
-  requestedDate: valueToNull(z.iso.datetime().nullable()).optional(),
+  requestedDate: valueToNull(
+    z.iso.datetime({ error: 'Booking date must be a valid ISO datetime' }).nullable()
+  ).optional(),
   status: bookingStatusSchema.optional(),
   feeProposal: valueToNull(z.number().positive().nullable()).optional(),
   notes: valueToNull(z.string().trim().nullable()).optional(),
@@ -144,14 +146,26 @@ export const parseBookingPatchSchema = z.object({
 
 export const validParseBookingSchema = z.object({
   venueId: z.string().trim().min(1, { error: 'Venue is required' }),
-  requestedDate: valueToNull(z.iso.datetime().nullable()),
+  requestedDate: valueToNull(
+    z.iso.datetime({ error: 'Booking date must be a valid ISO datetime' }).nullable()
+  ),
   status: bookingStatusSchema,
   feeProposal: valueToNull(z.number().positive().nullable()),
   notes: valueToNull(z.string().trim().nullable()),
 });
 
-export const gigEventResponseSchema = gigEventSchema.extend({
+// export const gigEventResponseSchema = gigEventSchema.extend({
+//   id: z.string(),
+// });
+export const gigEventResponseSchema = z.object({
   id: z.string(),
+  venueId: z.string().trim().min(1),
+  date: z.iso.datetime(),
+  status: bookingStatusSchema,
+  title: z.string().trim().min(1),
+  setlistName: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  bookingId: z.string().nullable().optional(),
 });
 
 export type GigEvent = z.infer<typeof gigEventResponseSchema>;

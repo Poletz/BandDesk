@@ -120,52 +120,61 @@ export const VenueModal = ({ opened, close, type, venue, onSubmit }: VenueModelP
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-            <fieldset disabled={type === Actions.VIEW} style={{ border: 'none' }}>
-              <SimpleGrid>
+            <SimpleGrid>
+              <TextInput
+                readOnly={type === Actions.VIEW}
+                withAsterisk
+                label="Name"
+                placeholder="Insert name..."
+                {...form.getInputProps('name')}
+              />
+              <Group grow align="flex-start">
                 <TextInput
-                  withAsterisk
-                  label="Name"
-                  placeholder="Insert name..."
-                  {...form.getInputProps('name')}
+                  readOnly={type === Actions.VIEW}
+                  label="City"
+                  placeholder="Insert city..."
+                  {...form.getInputProps('city')}
                 />
-                <Group grow align="flex-start">
-                  <TextInput
-                    label="City"
-                    placeholder="Insert city..."
-                    {...form.getInputProps('city')}
-                  />
-                  <TextInput
-                    label="Address"
-                    placeholder="Insert address..."
-                    {...form.getInputProps('address')}
-                  />
-                </Group>
-                <Group grow align="flex-start">
-                  <TextInput
-                    label="Contact name"
-                    placeholder="Insert fullname..."
-                    {...form.getInputProps('contactName')}
-                  />
-                  <TextInput
-                    label="Contact email"
-                    placeholder="Insert email..."
-                    {...form.getInputProps('contactEmail')}
-                  />
-                </Group>
+                <TextInput
+                  readOnly={type === Actions.VIEW}
+                  label="Address"
+                  placeholder="Insert address..."
+                  {...form.getInputProps('address')}
+                />
+              </Group>
+              <Group grow align="flex-start">
+                <TextInput
+                  readOnly={type === Actions.VIEW}
+                  label="Contact name"
+                  placeholder="Insert fullname..."
+                  {...form.getInputProps('contactName')}
+                />
+                <TextInput
+                  readOnly={type === Actions.VIEW}
+                  label="Contact email"
+                  placeholder="Insert email..."
+                  {...form.getInputProps('contactEmail')}
+                />
+              </Group>
+              <fieldset
+                disabled={type === Actions.VIEW}
+                style={{ border: 'none', padding: 0, margin: 0 }}
+              >
                 <PhoneField
                   value={form.values.contactPhone}
                   error={form.errors.contactPhone}
                   onChange={(value) => form.setFieldValue('contactPhone', value ?? '')}
                 />
-                <Textarea
-                  autosize
-                  minRows={3}
-                  label="Notes"
-                  placeholder="PA, stage size, parking, etc..."
-                  {...form.getInputProps('notes')}
-                />
-              </SimpleGrid>
-            </fieldset>
+              </fieldset>
+              <Textarea
+                readOnly={type === Actions.VIEW}
+                autosize
+                minRows={3}
+                label="Notes"
+                placeholder="PA, stage size, parking, etc..."
+                {...form.getInputProps('notes')}
+              />
+            </SimpleGrid>
             <Group justify="flex-end" m={12}>
               {type !== Actions.VIEW && (
                 <Button variant="subtle" c="red" onClick={handleClose}>
