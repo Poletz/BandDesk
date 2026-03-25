@@ -36,7 +36,7 @@ import {
   UsersWidget,
 } from '@/components/widgets';
 import { useLiveData } from '@/hooks/use-live-data';
-import { Actions, BookingRequest, CalendarItem, QuickAction } from '@/interfaces';
+import { Actions, BookingRequest, CalendarItem, GigEvent, QuickAction } from '@/interfaces';
 import { useAuthStore } from '@/store/auth';
 import { http } from '@/utils/http';
 import { bookingStatusLabel, confirmModal, getBookingStatusColor, getTypeName } from '@/utils/misc';
@@ -50,6 +50,8 @@ export const HomeComponent = () => {
   const [bookingModalType, setBookingModalType] = useState<Actions>(Actions.VIEW);
   const [selectedBooking, setSelectedBooking] = useState<BookingRequest | null>(null);
   const [isSavingBooking, setIsSavingBooking] = useState(false);
+  const [gigDetailsOpened, { open: openGigDetails, close: closeGigDetails }] = useDisclosure(false);
+  const [selectedGig, setSelectedGig] = useState<GigEvent | null>(null);
   const queryClient = useQueryClient();
   const { venueNameById, venues } = useLiveData();
 
@@ -75,6 +77,41 @@ export const HomeComponent = () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-data'] }),
     ]);
   }, [queryClient]);
+
+  const handleShowEventDetails = useCallback(
+    async (item: CalendarItem) => {
+      if (item.type === 'booking') {
+        try {
+          const { data } = await http.get<{ booking: BookingRequest }>(`/api/bookings/${item.id}`);
+          setSelectedBooking(data.booking);
+          setBookingModalType(Actions.VIEW);
+          bookingOpen();
+        } catch (error) {
+          showNotification({
+            color: 'red',
+            message: isAxiosError(error)
+              ? (error.response?.data?.message ?? 'Unable to load booking details.')
+              : 'Unable to load booking details.',
+          });
+        }
+        return;
+      }
+
+      try {
+        const { data } = await http.get<{ gig: GigEvent }>(`/api/gigs/${item.id}`);
+        setSelectedGig(data.gig);
+        openGigDetails();
+      } catch (error) {
+        showNotification({
+          color: 'red',
+          message: isAxiosError(error)
+            ? (error.response?.data?.message ?? 'Unable to load gig details.')
+            : 'Unable to load gig details.',
+        });
+      }
+    },
+    [bookingOpen, openGigDetails]
+  );
 
   const handleOpenBookingModal = useCallback(
     async (item: CalendarItem, modalType: Actions) => {
@@ -199,7 +236,7 @@ export const HomeComponent = () => {
         size="lg"
       >
         {items.map((item, i) => (
-          <Group key={i.toString().concat('-modal-item')} bg="dark.4" p={12} bdrs="lg">
+          <Group key={i.toString().concat(`${item.type}-${item.id}`)} bg="dark.4" p={12} bdrs="lg">
             <Stack gap={4}>
               <div
                 style={{
@@ -244,7 +281,7 @@ export const HomeComponent = () => {
                     leftSection={<IconEyeSearch size={16} />}
                     // component="a"
                     // href="/dashboard/settings?tab=live"
-                    onClick={() => handleOpenBookingModal(item, Actions.VIEW)}
+                    onClick={() => handleShowEventDetails(item)}
                   >
                     Show details
                   </MenuItem>
@@ -267,6 +304,31 @@ export const HomeComponent = () => {
             </Tooltip>
           </Group>
         ))}
+      </Modal>
+      <Modal
+        opened={gigDetailsOpened}
+        onClose={() => {
+          setSelectedGig(null);
+          closeGigDetails();
+        }}
+        title="Gig details"
+      >
+        <Stack gap="xs">
+          <Text fw={600}>{selectedGig?.title ?? '-'}</Text>
+          <Text size="sm" c="dimmed">
+            Date: {selectedGig?.date ? dayjs(selectedGig.date).format('DD MMM YYYY HH:mm') : '-'}
+          </Text>
+          <Text size="sm" c="dimmed">
+            Venue: {selectedGig?.venueId ? (venueNameById?.[selectedGig.venueId] ?? '-') : '-'}
+          </Text>
+          <Badge w="fit-content" color={getBookingStatusColor(selectedGig?.status)} variant="light">
+            {selectedGig?.status ? bookingStatusLabel[selectedGig.status] : 'n/a'}
+          </Badge>
+          {selectedGig?.setlistName ? (
+            <Text size="sm">Setlist: {selectedGig.setlistName}</Text>
+          ) : null}
+          {selectedGig?.notes ? <Text size="sm">Notes: {selectedGig.notes}</Text> : null}
+        </Stack>
       </Modal>
       <Group>
         <div style={{ marginRight: 'auto' }}>

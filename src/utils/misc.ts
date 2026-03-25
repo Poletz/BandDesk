@@ -1,10 +1,11 @@
+import dayjs from 'dayjs';
 import { StateCreator } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { modals } from '@mantine/modals';
 import { BOOKING_STATUSES } from '@/features';
-import { BookingStatus, CalendarItemType, Venue } from '@/interfaces';
+import { BookingRequest, BookingStatus, CalendarItemType, GigEvent, Venue } from '@/interfaces';
 import { UserRole, UserStatus } from '@/interfaces/users';
 
 export const createStore = <T>(state: StateCreator<T>) =>
@@ -88,3 +89,32 @@ export const getVenueNameMap = (venues: Venue[]) => {
     return acc;
   }, {});
 };
+
+export const getDefaultGigTitle = ({
+  venueName,
+  requestedDate,
+}: {
+  venueName?: string | null;
+  requestedDate?: string | null;
+}) => {
+  const name = venueName?.trim() || 'Venue';
+  const dateLabel = requestedDate ? dayjs(requestedDate).format('DD MMM YYYY') : 'TBD';
+
+  return `Live @ ${name} · ${dateLabel}`;
+};
+
+export const getDefaultGigFromBooking = (
+  booking: BookingRequest,
+  venueNameById: Record<string, string> | null
+): Omit<GigEvent, 'id'> => ({
+  venueId: booking.venueId,
+  date: booking.requestedDate ?? dayjs().toISOString(),
+  status: booking.status,
+  title: getDefaultGigTitle({
+    venueName: venueNameById?.[booking.venueId],
+    requestedDate: booking.requestedDate,
+  }),
+  setlistName: undefined,
+  notes: booking.notes,
+  bookingId: booking.id,
+});

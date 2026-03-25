@@ -18,18 +18,18 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
-import { BookingModal, VenueModal } from '@/components/modals';
+import { BookingModal, GigModal, VenueModal } from '@/components/modals';
 import { BOOKING_STATUSES } from '@/features';
 import { useLiveData } from '@/hooks/use-live-data';
-import { Actions, BookingRequest, Venue } from '@/interfaces';
+import { Actions, BookingRequest, GigEvent, Venue } from '@/interfaces';
 import { http } from '@/utils/http';
-import { bookingStatusLabel, confirmModal } from '@/utils/misc';
-import { parseGigEventSchema } from '@/utils/zod-interfaces';
+import { bookingStatusLabel, confirmModal, getDefaultGigFromBooking } from '@/utils/misc';
 
 export const LiveAndBookingComponent = () => {
   const {
     venues,
     bookings,
+    gigs,
     upcomingGigs,
     venueNameById,
     bookingCountByStatus,
@@ -40,11 +40,15 @@ export const LiveAndBookingComponent = () => {
   const [openedVenueModal, { open: openVenueModal, close: closeVenueModal }] = useDisclosure(false);
   const [openedBookingModal, { open: openBookingModal, close: closeBookingModal }] =
     useDisclosure(false);
+  const [openedGigModal, { open: openGigModal, close: closeGigModal }] = useDisclosure(false);
 
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<BookingRequest | null>(null);
+  const [selectedGig, setSelectedGig] = useState<GigEvent | null>(null);
+  const [gigDraft, setGigDraft] = useState<Omit<GigEvent, 'id'> | null>(null);
   const [venueModalType, setVenueModalType] = useState<Actions>(Actions.VIEW);
   const [bookingModalType, setBookingModalType] = useState<Actions>(Actions.VIEW);
+  const [gigModalType, setGigModalType] = useState<Actions>(Actions.VIEW);
 
   const handleVenueSubmit = useCallback(
     async (values?: Omit<Venue, 'id'>, type?: Actions) => {
@@ -108,6 +112,42 @@ export const LiveAndBookingComponent = () => {
     [selectedBooking, refetch, closeBookingModal, setLoading]
   );
 
+  const handleGigSubmit = useCallback(
+    async (values?: Omit<GigEvent, 'id'>, type?: Actions) => {
+      if (!values || type === Actions.VIEW) {
+        setSelectedGig(null);
+        setGigDraft(null);
+        closeGigModal();
+        return;
+      }
+
+      setLoading(true);
+      try {
+        if (type === Actions.CREATE) {
+          await http.post('/api/gigs', values);
+        }
+
+        if (type === Actions.UPDATE && selectedGig?.id) {
+          await http.patch(`/api/gigs/${selectedGig.id}`, values);
+        }
+
+        showNotification({ message: 'Gig saved successfully.', color: 'green' });
+        setSelectedGig(null);
+        setGigDraft(null);
+        closeGigModal();
+        await refetch();
+      } catch (err) {
+        if (isAxiosError(err)) {
+          const message = err.response?.data?.message ?? 'Unable to save gig.';
+          showNotification({ message, color: 'red' });
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedGig, refetch, closeGigModal]
+  );
+
   return (
     <ScrollArea
       w="100%"
@@ -130,6 +170,15 @@ export const LiveAndBookingComponent = () => {
         booking={selectedBooking ?? undefined}
         venues={venues}
         onSubmit={handleBookingSubmit}
+      />
+      <GigModal
+        close={closeGigModal}
+        opened={openedGigModal}
+        type={gigModalType}
+        gig={selectedGig ?? gigDraft ?? undefined}
+        venues={venues}
+        bookings={bookings}
+        onSubmit={handleGigSubmit}
       />
       <Stack w="100%">
         <Title order={3}>Live & Booking</Title>
@@ -186,7 +235,7 @@ export const LiveAndBookingComponent = () => {
             New booking
           </Button>
         </Group>
-        {/* <Divider my="sm" /> */}
+
         <Card withBorder>
           <Skeleton visible={isLoading || loading}>
             <Table striped highlightOnHover>
@@ -245,35 +294,12 @@ export const LiveAndBookingComponent = () => {
                             size="md"
                             p={4}
                             bdrs="xl"
-                            onClick={confirmModal(
-                              'Create gig?',
-                              'This action adds a gig linked to this booking. Do you wish to continue?',
-                              { confirm: 'Create a Gig', cancel: 'Cancel' },
-                              async () => {
-                                try {
-                                  const gig = parseGigEventSchema.parse({
-                                    venueId: booking.venueId,
-                                    date: booking.requestedDate,
-                                    status: booking.status,
-                                    title: `${venueNameById?.[booking.venueId]} - Gig`,
-                                    setlistName: undefined,
-                                    notes: booking.notes,
-                                    bookingId: booking.id,
-                                  });
-                                  setLoading(true);
-                                  await http.post('/api/gigs', gig);
-                                  showNotification({ message: 'Gig created.', color: 'green' });
-                                  await refetch();
-                                } catch (error) {
-                                  showNotification({
-                                    message: 'An error occurred. Please try again later.',
-                                    color: 'red',
-                                  });
-                                } finally {
-                                  setLoading(false);
-                                }
-                              }
-                            )}
+                            onClick={() => {
+                              setSelectedGig(null);
+                              setGigDraft(getDefaultGigFromBooking(booking, venueNameById));
+                              setGigModalType(Actions.CREATE);
+                              openGigModal();
+                            }}
                           >
                             <IconTicket />
                           </ActionIcon>
@@ -328,6 +354,124 @@ export const LiveAndBookingComponent = () => {
           </Skeleton>
         </Card>
         <Group mt={20} justify="space-between">
+          <Title order={4}>Gigs</Title>
+          <Button
+            disabled={loading}
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              setSelectedGig(null);
+              setGigDraft(null);
+              setGigModalType(Actions.CREATE);
+              openGigModal();
+            }}
+          >
+            New gig
+          </Button>
+        </Group>
+        <Card withBorder>
+          <Skeleton visible={isLoading || loading}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Title</Table.Th>
+                  <Table.Th>Venue</Table.Th>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Booking</Table.Th>
+                  <Table.Th />
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {gigs.length ? (
+                  gigs.map((gig) => (
+                    <Table.Tr key={gig.id}>
+                      <Table.Td>{gig.title}</Table.Td>
+                      <Table.Td>{venueNameById?.[gig.venueId] ?? 'N/A'}</Table.Td>
+                      <Table.Td>{dayjs(gig.date).format('DD MMM YYYY HH:mm')}</Table.Td>
+                      <Table.Td>{bookingStatusLabel[gig.status]}</Table.Td>
+                      <Table.Td>{gig.bookingId ? 'Linked' : '-'}</Table.Td>
+                      <Table.Td>
+                        <Group gap={6} justify="flex-end" wrap="nowrap">
+                          <ActionIcon
+                            variant="subtle"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={() => {
+                              setGigDraft(null);
+                              setSelectedGig(gig);
+                              setGigModalType(Actions.VIEW);
+                              openGigModal();
+                            }}
+                          >
+                            <IconEye />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={() => {
+                              setGigDraft(null);
+                              setSelectedGig(gig);
+                              setGigModalType(Actions.UPDATE);
+                              openGigModal();
+                            }}
+                          >
+                            <IconEdit />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            c="red"
+                            size="md"
+                            p={4}
+                            bdrs="xl"
+                            onClick={confirmModal(
+                              'Delete gig?',
+                              'This action cannot be undone.',
+                              { confirm: 'Delete', cancel: 'Cancel' },
+                              async () => {
+                                try {
+                                  setLoading(true);
+                                  await http.delete(`/api/gigs/${gig.id}`);
+                                  showNotification({ message: 'Gig deleted.', color: 'green' });
+                                  await refetch();
+                                } catch (err) {
+                                  if (isAxiosError(err)) {
+                                    const message =
+                                      err.response?.data?.message ?? 'Unable to delete gig.';
+                                    showNotification({ message, color: 'red' });
+                                  }
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            )}
+                          >
+                            <IconTrash />
+                          </ActionIcon>
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))
+                ) : (
+                  <Table.Tr style={{ pointerEvents: 'none' }}>
+                    <Table.Td
+                      style={{
+                        textAlign: 'center',
+                        padding: '16px 0 0 0',
+                      }}
+                      colSpan={6}
+                    >
+                      No gigs found...
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+              </Table.Tbody>
+            </Table>
+          </Skeleton>
+        </Card>
+        <Group mt={20} justify="space-between">
           <Title order={4}>Venues</Title>
           <Button
             disabled={loading}
@@ -357,14 +501,7 @@ export const LiveAndBookingComponent = () => {
               <Table.Tbody>
                 {venues.length ? (
                   venues.map((venue) => (
-                    <Table.Tr
-                      key={venue.id}
-                      // style={{ cursor: 'pointer' }}
-                      // onClick={() => {
-                      //   setSelectedVenue(venue);
-                      //   openVenueModal();
-                      // }}
-                    >
+                    <Table.Tr key={venue.id}>
                       <Table.Td>{venue.name}</Table.Td>
                       <Table.Td>{venue.address ?? 'N/A'}</Table.Td>
                       <Table.Td>{venue.city ?? 'N/A'}</Table.Td>
