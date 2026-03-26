@@ -150,6 +150,7 @@ export const LiveAndBookingComponent = () => {
 
   return (
     <ScrollArea
+      offsetScrollbars="present"
       w="100%"
       maw={1000}
       style={{

@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { liveRepository } from '@/features';
 import { getEventDaysSet, getItemsForDate, toCalendarItems } from '@/features/calendar';
+import { ReminderEvent } from '@/interfaces';
 import { getBookingStatusColor, getVenueNameMap } from '@/utils/misc';
 
 export const useCalendarData = (selectedDate: Date) => {
@@ -15,9 +16,12 @@ export const useCalendarData = (selectedDate: Date) => {
     const sourceData = query.data ?? { bookings: [], gigs: [], venues: [] };
 
     const venueNameById = getVenueNameMap(sourceData.venues);
+    const reminders = (sourceData as { reminders?: ReminderEvent[] }).reminders ?? [];
+
     const items = toCalendarItems({
       bookings: sourceData.bookings,
       gigs: sourceData.gigs,
+      reminders,
       venueNameById,
     });
 

@@ -134,14 +134,14 @@ export const parseBookingSchema = z.object({
 });
 
 export const parseBookingPatchSchema = z.object({
-  venueId: z.string().trim().min(1, { error: 'Venue is required' }).optional(),
+  venueId: z.string().trim().min(1, { error: 'Venue is required' }),
   requestedDate: valueToNull(
     z.iso.datetime({ error: 'Booking date must be a valid ISO datetime' }).nullable()
-  ).optional(),
-  status: bookingStatusSchema.optional(),
-  feeProposal: valueToNull(z.number().positive().nullable()).optional(),
-  notes: valueToNull(z.string().trim().nullable()).optional(),
-  gigId: valueToNull(z.string().trim().nullable()).optional(),
+  ),
+  status: bookingStatusSchema,
+  feeProposal: valueToNull(z.number().positive().nullable()),
+  notes: valueToNull(z.string().trim().nullable()),
+  gigId: valueToNull(z.string().trim().nullable()),
 });
 
 export const validParseBookingSchema = z.object({

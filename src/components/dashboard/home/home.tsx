@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { IconDots, IconEdit, IconEyeSearch, IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
@@ -80,6 +80,14 @@ export const HomeComponent = () => {
 
   const handleShowEventDetails = useCallback(
     async (item: CalendarItem) => {
+      if (item.type === 'reminder') {
+        showNotification({
+          color: 'blue',
+          message: 'Reminder details are available directly in this list.',
+        });
+        return;
+      }
+
       if (item.type === 'booking') {
         try {
           const { data } = await http.get<{ booking: BookingRequest }>(`/api/bookings/${item.id}`);
@@ -115,6 +123,14 @@ export const HomeComponent = () => {
 
   const handleOpenBookingModal = useCallback(
     async (item: CalendarItem, modalType: Actions) => {
+      if (item.type === 'reminder') {
+        showNotification({
+          color: 'yellow',
+          message: 'Reminder events are not editable from this modal.',
+        });
+        return;
+      }
+
       if (item.type !== 'booking') {
         showNotification({
           color: 'yellow',
@@ -176,6 +192,14 @@ export const HomeComponent = () => {
         'This action cannot be undone.',
         { confirm: 'Delete', cancel: 'Cancel' },
         async () => {
+          if (item.type === 'reminder') {
+            showNotification({
+              color: 'yellow',
+              message: 'Reminder events are read-only in this view.',
+            });
+            return;
+          }
+
           const endpoint =
             item.type === 'booking' ? `/api/bookings/${item.id}` : `/api/gigs/${item.id}`;
 
@@ -211,6 +235,13 @@ export const HomeComponent = () => {
     [venueOpen]
   );
 
+  const dateItemsByType = useMemo(() => {
+    const bookingAndGigItems = items.filter((item) => item.type !== 'reminder');
+    const reminderItems = items.filter((item) => item.type === 'reminder');
+
+    return { bookingAndGigItems, reminderItems };
+  }, [items]);
+
   return (
     <>
       <VenueModal opened={venueOpened} close={handleClose} type={Actions.CREATE} />
@@ -235,7 +266,7 @@ export const HomeComponent = () => {
         title={`Event${items.length > 1 ? 's' : ''} on ${dayjs(date).format('DD/MM/YYYY')}`}
         size="lg"
       >
-        {items.map((item, i) => (
+        {dateItemsByType.bookingAndGigItems.map((item, i) => (
           <Group key={i.toString().concat(`${item.type}-${item.id}`)} bg="dark.4" p={12} bdrs="lg">
             <Stack gap={4}>
               <div
@@ -304,6 +335,36 @@ export const HomeComponent = () => {
             </Tooltip>
           </Group>
         ))}
+        {dateItemsByType.reminderItems.length ? (
+          <Stack mt="md" gap="xs">
+            <Text fw={600} c="dimmed">
+              Reminders
+            </Text>
+            {dateItemsByType.reminderItems.map((item) => (
+              <Group key={`reminder-${item.id}`} bg="dark.6" p={12} bdrs="lg">
+                <Stack gap={4}>
+                  <Group gap={8}>
+                    <Text fw={600} fz={16}>
+                      {item.title}
+                    </Text>
+                    <Badge color="gray" variant="light">
+                      Reminder
+                    </Badge>
+                  </Group>
+                  <Text fw={300} fz={12}>
+                    Type: {getTypeName(item.type)}
+                  </Text>
+                  {item.venueId ? (
+                    <>
+                      <Divider color="dark.0" />
+                      <Text fz="14">Venue: {venueNameById?.[item.venueId] ?? '-'}</Text>
+                    </>
+                  ) : null}
+                </Stack>
+              </Group>
+            ))}
+          </Stack>
+        ) : null}
       </Modal>
       <Modal
         opened={gigDetailsOpened}

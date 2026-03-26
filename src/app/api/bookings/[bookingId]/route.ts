@@ -126,7 +126,7 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[book
 
   const { bookingId } = await ctx.params;
   const data = await req.json();
-  const parsedData = parseBookingPatchSchema.partial().safeParse(data);
+  const parsedData = parseBookingPatchSchema.safeParse(data);
 
   if (!parsedData.success) {
     return validationError(parsedData.error);

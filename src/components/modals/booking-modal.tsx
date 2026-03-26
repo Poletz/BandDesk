@@ -140,6 +140,7 @@ export const BookingModal = ({
                   value={
                     form.values.requestedDate ? dayjs(form.values.requestedDate).toDate() : null
                   }
+                  clearable
                   onChange={(value) =>
                     form.setFieldValue(
                       'requestedDate',

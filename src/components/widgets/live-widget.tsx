@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useMemo } from 'react';
 import { IconNotes } from '@tabler/icons-react';
 import {
   Badge,
@@ -24,19 +25,33 @@ export const LiveWidget = () => {
 
   const { upcomingGigs, venueNameById } = useLiveData();
 
+  const uniqueUpcomingGigs = useMemo(() => {
+    const uniqueByKey = new Map<string, (typeof upcomingGigs)[number]>();
+
+    for (const gig of upcomingGigs) {
+      const key = gig.bookingId ? `booking:${gig.bookingId}` : `gig:${gig.id}`;
+
+      if (!uniqueByKey.has(key)) {
+        uniqueByKey.set(key, gig);
+      }
+    }
+
+    return Array.from(uniqueByKey.values());
+  }, [upcomingGigs]);
+
   return (
     <Card withBorder radius="md" p="md">
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Title order={4}>Upcoming live</Title>
-          <Badge variant="light">{upcomingGigs.length}</Badge>
+          <Badge variant="light">{uniqueUpcomingGigs.length}</Badge>
         </Group>
 
         <Divider />
 
         <ScrollAreaAutosize>
-          {upcomingGigs.length ? (
-            upcomingGigs.map((gig) => (
+          {uniqueUpcomingGigs.length ? (
+            uniqueUpcomingGigs.map((gig) => (
               <Group key={gig.id} justify="space-between" align="flex-start">
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
