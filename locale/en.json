@@ -1,0 +1,45 @@
+{
+  "Common": {
+    "language": "Language",
+    "appName": "BandDesk - BDX"
+  },
+  "Navigation": {
+    "home": "Home",
+    "settings": "Settings"
+  },
+  "UserMenu": {
+    "tooltip": "User menu",
+    "settings": "Settings",
+    "logout": "Logout",
+    "confirmTitle": "Logout from {appName}?",
+    "confirmBody": "You'll be redirected to the Login page. Are you sure to logout from {appName}?"
+  },
+  "Auth": {
+    "or": "OR",
+    "continueWithGoogle": "Continue with Google",
+    "signIn": "Sign In",
+    "signInSubtitle": "with your email to access",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "continue": "Continue",
+    "signUp": "Sign up",
+    "signUpTitle": "Sign Up",
+    "name": "Name",
+    "profileNamePlaceholder": "Enter your profile name",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "register": "Register",
+    "loginFailed": "Login failed",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "Settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "security": "Account security",
+    "live": "Live & Booking",
+    "documents": "Documents",
+    "calendar": "Calendar",
+    "users": "Manage Users"
+  }
+}

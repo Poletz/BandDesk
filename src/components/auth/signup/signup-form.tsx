@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useTranslations } from 'next-intl';
 import { z } from 'zod/v4';
 import { ActionIcon, Button, Card, Group, PasswordInput, TextInput, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -19,6 +20,7 @@ export const SignUpForm = () => {
   const [visible, { toggle }] = useDisclosure(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   const form = useForm<SignUpFormValues>({
     initialValues: {
@@ -50,8 +52,8 @@ export const SignUpForm = () => {
     } catch (err) {
       showNotification({
         color: 'red',
-        title: 'Login failed',
-        message: 'Invalid email or password',
+        title: t('loginFailed'),
+        message: t('invalidCredentials'),
       });
     } finally {
       setLoading(false);
@@ -71,39 +73,36 @@ export const SignUpForm = () => {
           <IconArrowLeft size={24} />
         </ActionIcon>
         <Title size="lg" ta="center">
-          Sign Up
+          {t('signUpTitle')}
         </Title>
       </Group>
       <form onSubmit={form.onSubmit(onValidate)} style={{ width: '100%' }}>
         <TextInput
           mb={12}
           withAsterisk
-          label="Name"
+          label={t('name')}
           type="text"
           autoComplete="name"
-          placeholder="Enter your profile name"
-          // key={form.key('email')}
+          placeholder={t('profileNamePlaceholder')}
           {...form.getInputProps('name')}
         />
 
         <TextInput
           mb={12}
           withAsterisk
-          label="Email"
+          label={t('email')}
           type="email"
           autoComplete="email"
-          placeholder="Enter your email"
-          // key={form.key('email')}
+          placeholder={t('emailPlaceholder')}
           {...form.getInputProps('email')}
         />
 
         <PasswordInput
           mb={12}
           withAsterisk
-          label="Password"
+          label={t('password')}
           autoComplete="new-password"
-          placeholder="Enter your password"
-          // key={form.key('password')}
+          placeholder={t('passwordPlaceholder')}
           visible={visible}
           onVisibilityChange={toggle}
           {...form.getInputProps('password')}
@@ -127,7 +126,7 @@ export const SignUpForm = () => {
               type="submit"
               loading={loading}
             >
-              Register
+              {t('register')}
             </Button>
           </BorderAnimate>
         </Group>

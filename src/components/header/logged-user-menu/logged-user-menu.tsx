@@ -3,28 +3,27 @@
 import { useRouter } from 'next/navigation';
 import { IconLogout, IconSettings, IconUser, IconUserCircle } from '@tabler/icons-react';
 import { User } from 'better-auth';
+import { useTranslations } from 'next-intl';
 import { ActionIcon, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import { confirmModal } from '@/utils/misc';
 
 export const LoggedUserMenu = ({ user }: { user: User }) => {
   const router = useRouter();
+  const t = useTranslations('UserMenu');
+  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'BandDesk';
 
-  const component: React.ReactNode = (
-    <Text>
-      You'll be redirected to the Login page. Are you sure to logout from{' '}
-      {process.env.NEXT_PUBLIC_APP_NAME}?
-    </Text>
-  );
+  const component: React.ReactNode = <Text>{t('confirmBody', { appName })}</Text>;
+
   const doLogout = () => router.replace('/sign-out');
   const confirmLogout = confirmModal(
-    `Logout from ${process.env.NEXT_PUBLIC_APP_NAME}?`,
+    t('confirmTitle', { appName }),
     component,
-    { confirm: 'Logout' },
+    { confirm: t('logout') },
     doLogout
   );
 
   return (
-    <Tooltip label="User menu">
+    <Tooltip label={t('tooltip')}>
       <Menu shadow="md" width={200}>
         <Menu.Target>
           <ActionIcon bdrs="xl" color="violet" autoContrast size={36}>
@@ -46,9 +45,9 @@ export const LoggedUserMenu = ({ user }: { user: User }) => {
 
           <Menu.Item
             leftSection={<IconSettings size={16} />}
-            onClick={() => router.push('/settings')}
+            onClick={() => router.push('/dashboard/settings?tab=profile')}
           >
-            Settings
+            {t('settings')}
           </Menu.Item>
 
           <Menu.Divider />
@@ -59,7 +58,7 @@ export const LoggedUserMenu = ({ user }: { user: User }) => {
             fw="bold"
             onClick={confirmLogout}
           >
-            Logout
+            {t('logout')}
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>

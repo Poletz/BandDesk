@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Stack, Tabs, Title } from '@mantine/core';
 import { UserManagementPage } from '@/components/settings';
 import { CalendarComponent } from '@/components/settings/calendar';
@@ -18,6 +19,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const [provider, setProvider] = useState<Provider | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations('Settings');
 
   const tab = useMemo(() => {
     const value = searchParams.get('tab');
@@ -37,7 +39,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
   return (
     <Stack>
-      <Title order={2}>Settings</Title>
+      <Title order={2}>{t('title')}</Title>
 
       <Tabs
         value={tab}
@@ -49,12 +51,12 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         }}
       >
         <Tabs.List mb={20}>
-          <Tabs.Tab value={Tab.PROFILE}>Profile</Tabs.Tab>
-          <Tabs.Tab value={Tab.SECURITY}>Account security</Tabs.Tab>
-          <Tabs.Tab value={Tab.LIVE}>Live & Booking</Tabs.Tab>
-          <Tabs.Tab value={Tab.DOCS}>Documents</Tabs.Tab>
-          <Tabs.Tab value={Tab.CALENDAR}>Calendar</Tabs.Tab>
-          <Tabs.Tab value={Tab.USERS}>Manage Users</Tabs.Tab>
+          <Tabs.Tab value={Tab.PROFILE}>{t('profile')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.SECURITY}>{t('security')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.LIVE}>{t('live')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.DOCS}>{t('documents')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.CALENDAR}>{t('calendar')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.USERS}>{t('users')}</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="profile" style={{ display: 'flex', justifyContent: 'center' }}>

@@ -5,7 +5,9 @@ import '@mantine/notifications/styles.css';
 import '@gfazioli/mantine-border-animate/styles.css';
 import 'react-phone-number-input/style.css';
 
+import { getLocale, getMessages } from 'next-intl/server';
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
+import { defaultLocale, locales, type Locale } from '@/i18n/config';
 import { Providers } from './providers';
 
 export const metadata = {
@@ -13,7 +15,13 @@ export const metadata = {
   description: 'BandDesk — Organize your band, your sets, your gigs!',
 };
 
-export default function RootLayout({ children }: { children: any }) {
+const toSupportedLocale = (value: string): Locale =>
+  (locales.includes(value as Locale) ? value : defaultLocale) as Locale;
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = toSupportedLocale(await getLocale());
+  const messages = await getMessages();
+
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
@@ -25,7 +33,9 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers locale={locale} messages={messages}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

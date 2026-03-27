@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useTranslations } from 'next-intl';
 import { z } from 'zod/v4';
 import {
   Button,
@@ -34,6 +35,8 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
 
   const authLoading = useAuthStore((s) => s.authLoading);
   const setAuthLoading = useAuthStore((s) => s.setAuthLoading);
+  const t = useTranslations('Auth');
+  const tGen = useTranslations('Common');
 
   const router = useRouter();
 
@@ -59,8 +62,8 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
       console.error(err);
       showNotification({
         color: 'red',
-        title: 'Login failed',
-        message: 'Invalid email or password',
+        title: t('loginFailed'),
+        message: t('invalidCredentials'),
       });
     } finally {
       setAuthLoading(false);
@@ -93,24 +96,24 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
           w="100%"
           loading={authLoading}
         >
-          Continue with Google
+          {t('continueWithGoogle')}
         </Button>
       </Stack>
       <Divider w="100%" />
       <Title size="lg" m={0}>
-        Sign In
+        {t('signIn')}
       </Title>
       <Text m={0} size="sm">
-        with your email to access&nbsp;<strong>BandDesk</strong>
+        {t('signInSubtitle')}&nbsp;<strong>{tGen('appName')}</strong>
       </Text>
       <form onSubmit={form.onSubmit(onValidate)} style={{ width: '100%' }}>
         <TextInput
           mb={12}
           withAsterisk
-          label="Email"
+          label={t('email')}
           type="email"
           autoComplete="email"
-          placeholder="Enter your email"
+          placeholder={t('emailPlaceholder')}
           // key={form.key('email')}
           {...form.getInputProps('email')}
         />
@@ -118,21 +121,16 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
         <PasswordInput
           mb={12}
           withAsterisk
-          label="Password"
+          label={t('password')}
           autoComplete="current-password"
-          placeholder="Enter your password"
+          placeholder={t('passwordPlaceholder')}
           // key={form.key('password')}
           visible={visible}
           onVisibilityChange={toggle}
           {...form.getInputProps('password')}
         />
 
-        <Checkbox
-          mt={12}
-          label="Remember me"
-          // key={form.key('rememberMe')}
-          {...form.getInputProps('rememberMe')}
-        />
+        <Checkbox mt={12} label={t('rememberMe')} {...form.getInputProps('rememberMe')} />
 
         <Group justify="center" mt="md" w="100%">
           <BorderAnimate
@@ -152,7 +150,7 @@ export const LoginForm = ({ redirectUrl }: LoginFormProps) => {
               color="dark"
               loading={authLoading}
             >
-              Continue
+              {t('continue')}
             </Button>
           </BorderAnimate>
         </Group>
