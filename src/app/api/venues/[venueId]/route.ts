@@ -14,8 +14,9 @@ import { db } from '@/utils/db';
 import { validParseVenueSchema } from '@/utils/zod-interfaces';
 
 const venuesDB = db.collection('venues');
+type VenueRouteContext = { params: Promise<{ venueId: string }> };
 
-export async function GET(_req: NextRequest, ctx: RouteContext<'/api/venues/[venueId]'>) {
+export async function GET(_req: NextRequest, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -52,7 +53,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/venues/[ven
   }
 }
 
-export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueId]'>) {
+export async function PATCH(req: Request, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -97,7 +98,7 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/venues/[venueI
   });
 }
 
-export async function DELETE(_req: Request, ctx: RouteContext<'/api/venues/[venueId]'>) {
+export async function DELETE(_req: Request, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {

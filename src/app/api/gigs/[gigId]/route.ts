@@ -24,6 +24,7 @@ const gigsDB = db.collection('gigs');
 const bookingsDB = db.collection('bookings');
 
 type GigDocument = ReturnType<typeof gigEventSchema.parse>;
+type GigRouteContext = { params: Promise<{ gigId: string }> };
 
 const mapGigDocToResponse = (id: string, gig: GigDocument): GigEvent =>
   gigEventResponseSchema.parse({
@@ -37,7 +38,7 @@ const mapGigDocToResponse = (id: string, gig: GigDocument): GigEvent =>
     ...(gig.bookingId ? { bookingId: gig.bookingId } : {}),
   });
 
-export async function GET(_req: NextRequest, ctx: RouteContext<'/api/gigs/[gigId]'>) {
+export async function GET(_req: NextRequest, ctx: GigRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -70,7 +71,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/gigs/[gigId
   }
 }
 
-export async function PATCH(req: Request, ctx: RouteContext<'/api/gigs/[gigId]'>) {
+export async function PATCH(req: Request, ctx: GigRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -219,7 +220,7 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/gigs/[gigId]'>
   }
 }
 
-export async function DELETE(_req: Request, ctx: RouteContext<'/api/gigs/[gigId]'>) {
+export async function DELETE(_req: Request, ctx: GigRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {

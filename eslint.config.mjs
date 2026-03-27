@@ -11,6 +11,7 @@ export default defineConfig(
     files: ['**/*.story.tsx'],
     rules: { 'no-console': 'off' },
   },
+  { rules: { 'no-console': 'off' }, files: ['**/*.tsx', '**/*.ts'] },
   {
     languageOptions: {
       parserOptions: {

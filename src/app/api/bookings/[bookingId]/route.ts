@@ -27,6 +27,7 @@ const venueDB = db.collection('venues');
 
 type BookingDocument = ReturnType<typeof bookingSchema.parse>;
 type GigDocument = ReturnType<typeof gigEventSchema.parse>;
+type BookingRouteContext = { params: Promise<{ bookingId: string }> };
 
 const mapGigDocToResponse = (id: string, gig: GigDocument) =>
   gigEventResponseSchema.parse({
@@ -84,7 +85,7 @@ const mapBookingDetailResponse = async (
   });
 };
 
-export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
+export async function GET(_req: NextRequest, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -117,7 +118,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[b
   }
 }
 
-export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
+export async function PATCH(req: Request, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
@@ -253,7 +254,7 @@ export async function PATCH(req: Request, ctx: RouteContext<'/api/bookings/[book
   }
 }
 
-export async function DELETE(_req: Request, ctx: RouteContext<'/api/bookings/[bookingId]'>) {
+export async function DELETE(_req: Request, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
