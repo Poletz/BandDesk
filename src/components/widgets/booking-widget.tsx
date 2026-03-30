@@ -1,4 +1,5 @@
 import { IconArrowRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Badge, Card, Divider, Group, NavLink, Stack, Title } from '@mantine/core';
 import { BOOKING_STATUSES } from '@/features';
 import { useLiveData } from '@/hooks/use-live-data';
@@ -6,11 +7,12 @@ import { bookingStatusLabel } from '@/utils/misc';
 
 export const BookingWidget = () => {
   const { bookingCountByStatus } = useLiveData();
+  const t = useTranslations('Widgets');
 
   return (
     <Card withBorder radius="md" p="md">
       <Stack gap="sm">
-        <Title order={4}>Bookings</Title>
+        <Title order={4}>{t('booking.title')}</Title>
 
         <Divider />
 
@@ -23,7 +25,7 @@ export const BookingWidget = () => {
             ))}
           </Group>
           <NavLink
-            label="Go to Live & Booking"
+            label={t('booking.goTo')}
             href="/dashboard/settings?tab=live"
             rightSection={<IconArrowRight size={12} />}
             variant="subtle"

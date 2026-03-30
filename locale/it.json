@@ -1,7 +1,19 @@
 {
   "Common": {
     "language": "Lingua",
-    "appName": "BandDesk - BDX"
+    "appName": "BandDesk - BDX",
+    "na": "n/d",
+    "theme": {
+      "light": "Tema chiaro",
+      "dark": "Tema scuro"
+    },
+    "actions": {
+      "delete": "Elimina",
+      "cancel": "Annulla"
+    },
+    "confirm": {
+      "cannotUndo": "Questa azione non può essere annullata."
+    }
   },
   "Navigation": {
     "home": "Home",
@@ -31,7 +43,13 @@
     "passwordPlaceholder": "Inserisci la tua password",
     "register": "Crea account",
     "loginFailed": "Accesso fallito",
-    "invalidCredentials": "Email o password non valide"
+    "invalidCredentials": "Email o password non valide",
+    "loggingOut": "Disconnessione in corso...",
+    "redirect": {
+      "sessionExpired": "La tua sessione è scaduta. Effettua nuovamente l’accesso.",
+      "unauthorized": "Devi effettuare l’accesso per aprire questa pagina.",
+      "default": "Effettua l’accesso per continuare."
+    }
   },
   "Settings": {
     "title": "Impostazioni",
@@ -41,5 +59,70 @@
     "documents": "Documenti",
     "calendar": "Calendario",
     "users": "Gestione utenti"
+  },
+  "Home": {
+    "welcome": "Benvenuto, {name}!",
+    "userFallback": "Utente",
+    "subtitle": "Continua a far rockeggiare tutto",
+    "quickActions": {
+      "addLive": "Aggiungi Live",
+      "addVenue": "Aggiungi Venue",
+      "addDocument": "Aggiungi Documento"
+    },
+    "confirm": {
+      "deleteEventTitle": "Eliminare evento?"
+    },
+    "notifications": {
+      "reminderDetails": "I dettagli del promemoria sono disponibili direttamente in questa lista.",
+      "unableLoadBooking": "Impossibile caricare i dettagli della booking.",
+      "unableLoadGig": "Impossibile caricare i dettagli del live.",
+      "reminderNotEditable": "I promemoria non sono modificabili da questa modale.",
+      "eventNotEditable": "Questo tipo di evento non è ancora modificabile qui.",
+      "bookingUpdated": "Booking aggiornata con successo.",
+      "unableUpdateBooking": "Impossibile aggiornare la booking.",
+      "reminderReadOnly": "I promemoria sono in sola lettura in questa vista.",
+      "eventDeleted": "Evento eliminato.",
+      "unableDeleteEvent": "Impossibile eliminare l’evento."
+    },
+    "eventsModal": {
+      "title": "Eventi del {date}",
+      "type": "Tipo",
+      "venue": "Venue",
+      "moreActions": "Altre azioni",
+      "showDetails": "Mostra dettagli",
+      "editEvent": "Modifica evento",
+      "deleteEvent": "Elimina evento",
+      "reminders": "Promemoria",
+      "reminder": "Promemoria"
+    },
+    "gigModal": {
+      "title": "Dettagli live",
+      "date": "Data",
+      "setlist": "Setlist",
+      "notes": "Note"
+    }
+  },
+  "Widgets": {
+    "booking": {
+      "title": "Booking",
+      "goTo": "Vai a Live & Booking"
+    },
+    "documents": {
+      "title": "Documenti",
+      "empty": "Nessun documento disponibile",
+      "goTo": "Vai a Documenti"
+    },
+    "live": {
+      "title": "Prossimi live",
+      "empty": "Nessun live in programma"
+    },
+    "users": {
+      "title": "Utenti",
+      "active": "Attivi",
+      "invited": "Invitati",
+      "disabled": "Disabilitati",
+      "description": "Gestisci ruoli del team e stati account dalle Impostazioni.",
+      "goTo": "Vai a Gestione utenti"
+    }
   }
 }

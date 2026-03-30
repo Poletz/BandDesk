@@ -1,17 +1,19 @@
 'use client';
 
 import { IconArrowRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Badge, Card, Divider, Group, NavLink, Stack, Text, Title } from '@mantine/core';
 import { useTeamData } from '@/hooks/use-team-data';
 
 export const UsersWidget = () => {
   const { userCountByStatus, users } = useTeamData();
+  const t = useTranslations('Widgets');
 
   return (
     <Card withBorder radius="md" p="md">
       <Stack gap="sm">
         <Group justify="space-between">
-          <Title order={4}>Users</Title>
+          <Title order={4}>{t('users.title')}</Title>
           <Badge variant="light">{users.length}</Badge>
         </Group>
 
@@ -19,22 +21,22 @@ export const UsersWidget = () => {
 
         <Group gap="xs">
           <Badge color="green" variant="light">
-            Active: {userCountByStatus.active}
+            {t('users.active')}: {userCountByStatus.active}
           </Badge>
           <Badge color="blue" variant="light">
-            Invited: {userCountByStatus.invited}
+            {t('users.invited')}: {userCountByStatus.invited}
           </Badge>
           <Badge color="gray" variant="light">
-            Disabled: {userCountByStatus.disabled}
+            {t('users.disabled')}: {userCountByStatus.disabled}
           </Badge>
         </Group>
 
         <Text size="sm" c="dimmed">
-          Manage team roles and account statuses from the Settings area.
+          {t('users.description')}
         </Text>
 
         <NavLink
-          label="Go to Manage Users"
+          label={t('users.goTo')}
           href="/dashboard/settings?tab=users"
           rightSection={<IconArrowRight size={12} />}
           variant="subtle"
