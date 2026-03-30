@@ -1,7 +1,19 @@
 {
   "Common": {
     "language": "Language",
-    "appName": "BandDesk - BDX"
+    "appName": "BandDesk - BDX",
+    "na": "n/a",
+    "theme": {
+      "light": "Light theme",
+      "dark": "Dark theme"
+    },
+    "actions": {
+      "delete": "Delete",
+      "cancel": "Cancel"
+    },
+    "confirm": {
+      "cannotUndo": "This action cannot be undone."
+    }
   },
   "Navigation": {
     "home": "Home",
@@ -31,7 +43,13 @@
     "passwordPlaceholder": "Enter your password",
     "register": "Register",
     "loginFailed": "Login failed",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "loggingOut": "Logging out...",
+    "redirect": {
+      "sessionExpired": "Your session expired. Please sign in again.",
+      "unauthorized": "You must sign in to access that page.",
+      "default": "Please sign in to continue."
+    }
   },
   "Settings": {
     "title": "Settings",
@@ -41,5 +59,70 @@
     "documents": "Documents",
     "calendar": "Calendar",
     "users": "Manage Users"
+  },
+  "Home": {
+    "welcome": "Welcome, {name}!",
+    "userFallback": "User",
+    "subtitle": "Keep the rock on",
+    "quickActions": {
+      "addLive": "Add Live",
+      "addVenue": "Add Venue",
+      "addDocument": "Add Document"
+    },
+    "confirm": {
+      "deleteEventTitle": "Delete event?"
+    },
+    "notifications": {
+      "reminderDetails": "Reminder details are available directly in this list.",
+      "unableLoadBooking": "Unable to load booking details.",
+      "unableLoadGig": "Unable to load gig details.",
+      "reminderNotEditable": "Reminder events are not editable from this modal.",
+      "eventNotEditable": "This event type cannot be edited here yet.",
+      "bookingUpdated": "Booking updated successfully.",
+      "unableUpdateBooking": "Unable to update booking.",
+      "reminderReadOnly": "Reminder events are read-only in this view.",
+      "eventDeleted": "Event deleted.",
+      "unableDeleteEvent": "Unable to delete event."
+    },
+    "eventsModal": {
+      "title": "Events on {date}",
+      "type": "Type",
+      "venue": "Venue",
+      "moreActions": "More actions",
+      "showDetails": "Show details",
+      "editEvent": "Edit event",
+      "deleteEvent": "Delete event",
+      "reminders": "Reminders",
+      "reminder": "Reminder"
+    },
+    "gigModal": {
+      "title": "Gig details",
+      "date": "Date",
+      "setlist": "Setlist",
+      "notes": "Notes"
+    }
+  },
+  "Widgets": {
+    "booking": {
+      "title": "Bookings",
+      "goTo": "Go to Live & Booking"
+    },
+    "documents": {
+      "title": "Documents",
+      "empty": "No documents available",
+      "goTo": "Go to Documents"
+    },
+    "live": {
+      "title": "Upcoming live",
+      "empty": "No upcoming live scheduled"
+    },
+    "users": {
+      "title": "Users",
+      "active": "Active",
+      "invited": "Invited",
+      "disabled": "Disabled",
+      "description": "Manage team roles and account statuses from the Settings area.",
+      "goTo": "Go to Manage Users"
+    }
   }
 }
