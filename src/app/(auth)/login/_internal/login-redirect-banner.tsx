@@ -3,10 +3,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Alert } from '@mantine/core';
 
 export const LoginRedirectBanner = ({ reason }: { reason?: string }) => {
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   useEffect(() => {
     if (reason) {
@@ -20,13 +22,13 @@ export const LoginRedirectBanner = ({ reason }: { reason?: string }) => {
   }
 
   const messages: Record<string, string> = {
-    session_expired: 'Your session expired. Please sign in again.',
-    unauthorized: 'You must sign in to access that page.',
+    session_expired: t('redirect.sessionExpired'),
+    unauthorized: t('redirect.unauthorized'),
   };
 
   return (
     <Alert variant="light" color="orange" radius="md" mb="md" icon={<IconAlertCircle size={18} />}>
-      {messages[reason] ?? 'Please sign in to continue.'}
+      {messages[reason] ?? t('redirect.default')}
     </Alert>
   );
 };

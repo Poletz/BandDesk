@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { IconNotes } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import {
   Badge,
   Card,
@@ -22,7 +23,7 @@ import { getBookingStatusColor } from '@/utils/misc';
 
 export const LiveWidget = () => {
   const [opened, { close, open }] = useDisclosure(false);
-
+  const t = useTranslations('Widgets');
   const { upcomingGigs, venueNameById } = useLiveData();
 
   const uniqueUpcomingGigs = useMemo(() => {
@@ -43,7 +44,7 @@ export const LiveWidget = () => {
     <Card withBorder radius="md" p="md">
       <Stack gap="sm">
         <Group justify="space-between" align="center">
-          <Title order={4}>Upcoming live</Title>
+          <Title order={4}>{t('live.title')}</Title>
           <Badge variant="light">{uniqueUpcomingGigs.length}</Badge>
         </Group>
 
@@ -82,7 +83,7 @@ export const LiveWidget = () => {
             ))
           ) : (
             <Text fz="md" style={{ textAlign: 'center' }}>
-              No upcoming Live scheduled
+              {t('live.empty')}
             </Text>
           )}
         </ScrollAreaAutosize>

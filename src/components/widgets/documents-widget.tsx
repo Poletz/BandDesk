@@ -2,17 +2,19 @@
 
 import dayjs from 'dayjs';
 import { IconArrowRight, IconFileDescription } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Badge, Card, Divider, Group, NavLink, Stack, Text, Title } from '@mantine/core';
 import { useDocumentsData } from '@/hooks/use-documents-data';
 
 export const DocumentsWidget = () => {
   const { recentDocuments, documents } = useDocumentsData();
+  const t = useTranslations('Widgets');
 
   return (
     <Card withBorder radius="md" p="md">
       <Stack gap="sm">
         <Group justify="space-between">
-          <Title order={4}>Documents</Title>
+          <Title order={4}>{t('documents.title')}</Title>
           <Badge variant="light">{documents.length}</Badge>
         </Group>
 
@@ -40,13 +42,13 @@ export const DocumentsWidget = () => {
             ))
           ) : (
             <Text fz="md" style={{ textAlign: 'center' }}>
-              No Documents available
+              {t('documents.empty')}
             </Text>
           )}
         </Stack>
 
         <NavLink
-          label="Go to Documents"
+          label={t('documents.goTo')}
           href="/dashboard/settings?tab=docs"
           rightSection={<IconArrowRight size={12} />}
           variant="subtle"

@@ -2,11 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Center, Loader, LoadingOverlay, Stack, Text } from '@mantine/core';
 import { authClient } from '@/utils/auth-client';
 
 export default function SignOutPage() {
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   useEffect(() => {
     const signOut = async () => {
@@ -31,7 +33,7 @@ export default function SignOutPage() {
             <Center>
               <Loader size={50} />
             </Center>
-            <Text>Logging out...</Text>
+            <Text>{t('loggingOut')}</Text>
           </Stack>
         ),
       }}

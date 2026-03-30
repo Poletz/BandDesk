@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { IconDots, IconEdit, IconEyeSearch, IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
+import { useTranslations } from 'next-intl';
 import {
   ActionIcon,
   Badge,
@@ -54,8 +55,9 @@ export const HomeComponent = () => {
   const [selectedGig, setSelectedGig] = useState<GigEvent | null>(null);
   const queryClient = useQueryClient();
   const { venueNameById, venues } = useLiveData();
-
   const user = useAuthStore((s) => s.user);
+  const t = useTranslations('Home');
+  const tCom = useTranslations('Common');
 
   const setDateAndItems = useCallback(
     (d: Date, nextItems: CalendarItem[]) => {
@@ -69,8 +71,6 @@ export const HomeComponent = () => {
     [open]
   );
 
-  const handleClose = useCallback(venueClose, [venueClose]);
-
   const refreshLiveAndCalendarData = useCallback(async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['live-data'] }),
@@ -81,10 +81,7 @@ export const HomeComponent = () => {
   const handleShowEventDetails = useCallback(
     async (item: CalendarItem) => {
       if (item.type === 'reminder') {
-        showNotification({
-          color: 'blue',
-          message: 'Reminder details are available directly in this list.',
-        });
+        showNotification({ color: 'blue', message: t('notifications.reminderDetails') });
         return;
       }
 
@@ -98,8 +95,8 @@ export const HomeComponent = () => {
           showNotification({
             color: 'red',
             message: isAxiosError(error)
-              ? (error.response?.data?.message ?? 'Unable to load booking details.')
-              : 'Unable to load booking details.',
+              ? (error.response?.data?.message ?? t('notifications.unableLoadBooking'))
+              : t('notifications.unableLoadBooking'),
           });
         }
         return;
@@ -113,29 +110,23 @@ export const HomeComponent = () => {
         showNotification({
           color: 'red',
           message: isAxiosError(error)
-            ? (error.response?.data?.message ?? 'Unable to load gig details.')
-            : 'Unable to load gig details.',
+            ? (error.response?.data?.message ?? t('notifications.unableLoadGig'))
+            : t('notifications.unableLoadGig'),
         });
       }
     },
-    [bookingOpen, openGigDetails]
+    [bookingOpen, openGigDetails, t]
   );
 
   const handleOpenBookingModal = useCallback(
     async (item: CalendarItem, modalType: Actions) => {
       if (item.type === 'reminder') {
-        showNotification({
-          color: 'yellow',
-          message: 'Reminder events are not editable from this modal.',
-        });
+        showNotification({ color: 'yellow', message: t('notifications.reminderNotEditable') });
         return;
       }
 
       if (item.type !== 'booking') {
-        showNotification({
-          color: 'yellow',
-          message: 'This event type cannot be edited here yet.',
-        });
+        showNotification({ color: 'yellow', message: t('notifications.eventNotEditable') });
         return;
       }
 
@@ -148,12 +139,12 @@ export const HomeComponent = () => {
         showNotification({
           color: 'red',
           message: isAxiosError(error)
-            ? (error.response?.data?.message ?? 'Unable to load booking details.')
-            : 'Unable to load booking details.',
+            ? (error.response?.data?.message ?? t('notifications.unableLoadBooking'))
+            : t('notifications.unableLoadBooking'),
         });
       }
     },
-    [bookingOpen]
+    [bookingOpen, t]
   );
 
   const handleBookingSubmit = useCallback(
@@ -167,7 +158,7 @@ export const HomeComponent = () => {
       setIsSavingBooking(true);
       try {
         await http.patch(`/api/bookings/${selectedBooking.id}`, values);
-        showNotification({ message: 'Booking updated successfully.', color: 'green' });
+        showNotification({ message: t('notifications.bookingUpdated'), color: 'green' });
         setSelectedBooking(null);
         bookingClose();
         await refreshLiveAndCalendarData();
@@ -175,28 +166,25 @@ export const HomeComponent = () => {
         showNotification({
           color: 'red',
           message: isAxiosError(error)
-            ? (error.response?.data?.message ?? 'Unable to update booking.')
-            : 'Unable to update booking.',
+            ? (error.response?.data?.message ?? t('notifications.unableUpdateBooking'))
+            : t('notifications.unableUpdateBooking'),
         });
       } finally {
         setIsSavingBooking(false);
       }
     },
-    [bookingClose, refreshLiveAndCalendarData, selectedBooking]
+    [bookingClose, refreshLiveAndCalendarData, selectedBooking, t]
   );
 
   const handleDeleteEvent = useCallback(
     (item: CalendarItem) =>
       confirmModal(
-        'Delete event?',
-        'This action cannot be undone.',
-        { confirm: 'Delete', cancel: 'Cancel' },
+        t('confirm.deleteEventTitle'),
+        tCom('confirm.cannotUndo'),
+        { confirm: tCom('actions.delete'), cancel: tCom('actions.cancel') },
         async () => {
           if (item.type === 'reminder') {
-            showNotification({
-              color: 'yellow',
-              message: 'Reminder events are read-only in this view.',
-            });
+            showNotification({ color: 'yellow', message: t('notifications.reminderReadOnly') });
             return;
           }
 
@@ -206,30 +194,25 @@ export const HomeComponent = () => {
           try {
             await http.delete(endpoint);
             setSelectedItems((prev) => prev.filter((prevItem) => prevItem.id !== item.id));
-            showNotification({ message: 'Event deleted.', color: 'green' });
+            showNotification({ message: t('notifications.eventDeleted'), color: 'green' });
             await refreshLiveAndCalendarData();
           } catch (error) {
             showNotification({
               color: 'red',
               message: isAxiosError(error)
-                ? (error.response?.data?.message ?? 'Unable to delete event.')
-                : 'Unable to delete event.',
+                ? (error.response?.data?.message ?? t('notifications.unableDeleteEvent'))
+                : t('notifications.unableDeleteEvent'),
             });
           }
         }
       ),
-    [refreshLiveAndCalendarData]
+    [refreshLiveAndCalendarData, t, tCom]
   );
 
   const handleClick = useCallback(
     (type: QuickAction) => {
-      switch (type) {
-        case QuickAction.LIVE:
-        case QuickAction.DOC:
-          break;
-        case QuickAction.VENUE:
-          venueOpen();
-          break;
+      if (type === QuickAction.VENUE) {
+        venueOpen();
       }
     },
     [venueOpen]
@@ -244,14 +227,13 @@ export const HomeComponent = () => {
 
   return (
     <>
-      <VenueModal opened={venueOpened} close={handleClose} type={Actions.CREATE} />
+      <VenueModal opened={venueOpened} close={venueClose} type={Actions.CREATE} />
       <BookingModal
         opened={bookingOpened}
         close={() => {
           if (isSavingBooking) {
             return;
           }
-
           setSelectedBooking(null);
           bookingClose();
         }}
@@ -263,18 +245,16 @@ export const HomeComponent = () => {
       <Modal
         opened={opened}
         onClose={close}
-        title={`Event${items.length > 1 ? 's' : ''} on ${dayjs(date).format('DD/MM/YYYY')}`}
+        title={t('eventsModal.title', {
+          count: items.length,
+          date: dayjs(date).format('DD/MM/YYYY'),
+        })}
         size="lg"
       >
         {dateItemsByType.bookingAndGigItems.map((item, i) => (
           <Group key={i.toString().concat(`${item.type}-${item.id}`)} bg="dark.4" p={12} bdrs="lg">
             <Stack gap={4}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
+              <Group>
                 <Text fw={600} fz={16}>
                   {item.title}
                 </Text>
@@ -287,19 +267,21 @@ export const HomeComponent = () => {
                   >
                     {bookingStatusLabel[item.status]}
                   </Badge>
-                ) : undefined}
-              </div>
+                ) : null}
+              </Group>
               <Text fw={300} fz={12}>
-                Type: {getTypeName(item.type)}
+                {t('eventsModal.type')}: {getTypeName(item.type)}
               </Text>
               {item.venueId ? (
                 <>
                   <Divider color="dark.0" />
-                  <Text fz="14">Venue: {venueNameById?.[item.venueId]}</Text>
+                  <Text fz="14">
+                    {t('eventsModal.venue')}: {venueNameById?.[item.venueId]}
+                  </Text>
                 </>
-              ) : undefined}
+              ) : null}
             </Stack>
-            <Tooltip label="More actions">
+            <Tooltip label={t('eventsModal.moreActions')}>
               <Menu trigger="click-hover">
                 <MenuTarget>
                   <ActionIcon ml="auto" variant="subtle" color="white" bdrs="xl">
@@ -307,20 +289,17 @@ export const HomeComponent = () => {
                   </ActionIcon>
                 </MenuTarget>
                 <MenuDropdown w={200} p={8}>
-                  {/* <MenuLabel>Pippo</MenuLabel> */}
                   <MenuItem
                     leftSection={<IconEyeSearch size={16} />}
-                    // component="a"
-                    // href="/dashboard/settings?tab=live"
                     onClick={() => handleShowEventDetails(item)}
                   >
-                    Show details
+                    {t('eventsModal.showDetails')}
                   </MenuItem>
                   <MenuItem
                     leftSection={<IconEdit size={16} />}
                     onClick={() => handleOpenBookingModal(item, Actions.UPDATE)}
                   >
-                    Edit event
+                    {t('eventsModal.editEvent')}
                   </MenuItem>
                   <MenuDivider my={8} />
                   <MenuItem
@@ -328,17 +307,18 @@ export const HomeComponent = () => {
                     leftSection={<IconTrash size={16} />}
                     onClick={handleDeleteEvent(item)}
                   >
-                    Delete event
+                    {t('eventsModal.deleteEvent')}
                   </MenuItem>
                 </MenuDropdown>
               </Menu>
             </Tooltip>
           </Group>
         ))}
+
         {dateItemsByType.reminderItems.length ? (
           <Stack mt="md" gap="xs">
             <Text fw={600} c="dimmed">
-              Reminders
+              {t('eventsModal.reminders')}
             </Text>
             {dateItemsByType.reminderItems.map((item) => (
               <Group key={`reminder-${item.id}`} bg="dark.6" p={12} bdrs="lg">
@@ -348,16 +328,18 @@ export const HomeComponent = () => {
                       {item.title}
                     </Text>
                     <Badge color="gray" variant="light">
-                      Reminder
+                      {t('eventsModal.reminder')}
                     </Badge>
                   </Group>
                   <Text fw={300} fz={12}>
-                    Type: {getTypeName(item.type)}
+                    {t('eventsModal.type')}: {getTypeName(item.type)}
                   </Text>
                   {item.venueId ? (
                     <>
                       <Divider color="dark.0" />
-                      <Text fz="14">Venue: {venueNameById?.[item.venueId] ?? '-'}</Text>
+                      <Text fz="14">
+                        {t('eventsModal.venue')}: {venueNameById?.[item.venueId] ?? '-'}
+                      </Text>
                     </>
                   ) : null}
                 </Stack>
@@ -366,37 +348,46 @@ export const HomeComponent = () => {
           </Stack>
         ) : null}
       </Modal>
+
       <Modal
         opened={gigDetailsOpened}
         onClose={() => {
           setSelectedGig(null);
           closeGigDetails();
         }}
-        title="Gig details"
+        title={t('gigModal.title')}
       >
         <Stack gap="xs">
           <Text fw={600}>{selectedGig?.title ?? '-'}</Text>
           <Text size="sm" c="dimmed">
-            Date: {selectedGig?.date ? dayjs(selectedGig.date).format('DD MMM YYYY HH:mm') : '-'}
+            {t('gigModal.date')}:{' '}
+            {selectedGig?.date ? dayjs(selectedGig.date).format('DD MMM YYYY HH:mm') : '-'}
           </Text>
           <Text size="sm" c="dimmed">
-            Venue: {selectedGig?.venueId ? (venueNameById?.[selectedGig.venueId] ?? '-') : '-'}
+            {t('eventsModal.venue')}:{' '}
+            {selectedGig?.venueId ? (venueNameById?.[selectedGig.venueId] ?? '-') : '-'}
           </Text>
           <Badge w="fit-content" color={getBookingStatusColor(selectedGig?.status)} variant="light">
-            {selectedGig?.status ? bookingStatusLabel[selectedGig.status] : 'n/a'}
+            {selectedGig?.status ? bookingStatusLabel[selectedGig.status] : tCom('na')}
           </Badge>
           {selectedGig?.setlistName ? (
-            <Text size="sm">Setlist: {selectedGig.setlistName}</Text>
+            <Text size="sm">
+              {t('gigModal.setlist')}: {selectedGig.setlistName}
+            </Text>
           ) : null}
-          {selectedGig?.notes ? <Text size="sm">Notes: {selectedGig.notes}</Text> : null}
+          {selectedGig?.notes ? (
+            <Text size="sm">
+              {t('gigModal.notes')}: {selectedGig.notes}
+            </Text>
+          ) : null}
         </Stack>
       </Modal>
+
       <Group>
         <div style={{ marginRight: 'auto' }}>
-          <Title order={2}>Welcome, {user?.name ?? 'User'}!</Title>
-          <Text c="dimmed">Keep the rock on</Text>
+          <Title order={2}>{t('welcome', { name: user?.name ?? t('userFallback') })}</Title>
+          <Text c="dimmed">{t('subtitle')}</Text>
         </div>
-
         <QuickActionsWidget onAction={handleClick} />
       </Group>
 
