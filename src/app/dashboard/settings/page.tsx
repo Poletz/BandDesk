@@ -34,7 +34,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       }
     };
 
-    getProvider();
+    void getProvider();
   }, [setProvider]);
 
   return (

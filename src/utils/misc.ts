@@ -18,7 +18,7 @@ export const confirmModal = (
   title: string,
   children: React.ReactNode,
   labels: { confirm?: string; cancel?: string },
-  cb: () => void,
+  cb: () => void | Promise<void>,
   withCloseButton = false
 ) => {
   return () =>
@@ -26,7 +26,9 @@ export const confirmModal = (
       title,
       children,
       labels: { confirm: labels?.confirm ?? 'Confirm', cancel: labels?.cancel ?? 'Cancel' },
-      onConfirm: cb,
+      onConfirm: () => {
+        void cb();
+      },
       withCloseButton,
     });
 };

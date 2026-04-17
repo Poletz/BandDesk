@@ -57,7 +57,7 @@ export default function ProfileSettingsPage() {
       }
     };
 
-    session();
+    void session();
   }, [router]);
 
   const form = useForm({
