@@ -7,6 +7,7 @@ export type BandDocumentVisibility = 'public' | 'members' | 'admins';
 
 export interface BandSocialLinks {
   instagram?: string | null;
+  facebook?: string | null;
   youtube?: string | null;
   spotify?: string | null;
   tiktok?: string | null;
@@ -91,4 +92,28 @@ export interface BandDocumentMeta {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
+}
+
+export interface BandContext {
+  id: string;
+  name: string;
+  bio: string | null;
+  genres: string[];
+  city: string | null;
+  socials: Record<string, string | null> | null;
+  visibility: BandVisibility;
+  createdByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+  membership: {
+    id: string;
+    role: BandRole;
+    status: BandMembershipStatus;
+    acceptedAt: string | null;
+  };
+}
+
+export interface BandContextPayload {
+  bands: BandContext[];
+  activeBandId: string | null;
 }

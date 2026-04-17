@@ -1,12 +1,16 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getBookingsCountByStatus, getUpcomingGigs, liveRepository } from '@/features';
+import { useBandContext } from '@/hooks/use-band-context';
 import { getVenueNameMap } from '@/utils/misc';
 
 export const useLiveData = () => {
+  const { activeBandId, isLoading: isBandContextLoading } = useBandContext();
+
   const query = useQuery({
-    queryKey: ['live-data'],
-    queryFn: liveRepository.list,
+    queryKey: ['live-data', activeBandId],
+    queryFn: () => liveRepository.list(activeBandId ?? undefined),
+    enabled: Boolean(activeBandId),
   });
 
   const computed = useMemo(() => {
@@ -23,7 +27,8 @@ export const useLiveData = () => {
 
   return {
     ...computed,
-    isLoading: query.isLoading,
+    activeBandId,
+    isLoading: isBandContextLoading || query.isLoading,
     error: query.error,
     refetch: query.refetch,
   };

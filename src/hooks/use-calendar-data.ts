@@ -3,13 +3,17 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { liveRepository } from '@/features';
 import { getEventDaysSet, getItemsForDate, toCalendarItems } from '@/features/calendar';
+import { useBandContext } from '@/hooks/use-band-context';
 import { ReminderEvent } from '@/interfaces';
 import { getBookingStatusColor, getVenueNameMap } from '@/utils/misc';
 
 export const useCalendarData = (selectedDate: Date) => {
+  const { activeBandId, isLoading: isBandContextLoading } = useBandContext();
+
   const query = useQuery({
-    queryKey: ['calendar-data'],
-    queryFn: liveRepository.list,
+    queryKey: ['calendar-data', activeBandId],
+    queryFn: () => liveRepository.list(activeBandId ?? undefined),
+    enabled: Boolean(activeBandId),
   });
 
   const computed = useMemo(() => {
@@ -38,7 +42,8 @@ export const useCalendarData = (selectedDate: Date) => {
 
   return {
     ...computed,
-    isLoading: query.isLoading,
+    activeBandId,
+    isLoading: isBandContextLoading || query.isLoading,
     error: query.error,
     refetch: query.refetch,
   };

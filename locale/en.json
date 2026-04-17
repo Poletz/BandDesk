@@ -19,6 +19,21 @@
     "home": "Home",
     "settings": "Settings"
   },
+  "BandContext": {
+    "label": "Active band",
+    "loading": "Loading...",
+    "empty": "No band",
+    "emptyTooltip": "No active band membership was found for this account yet.",
+    "roles": {
+      "admin": "Admin",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "notifications": {
+      "switchSuccess": "Active band changed to {name}.",
+      "switchError": "Unable to change active band."
+    }
+  },
   "UserMenu": {
     "tooltip": "User menu",
     "settings": "Settings",

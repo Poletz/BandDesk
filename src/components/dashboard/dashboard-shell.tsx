@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { AppShell, Burger, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useAuthStore } from '@/store/auth';
-import { ColorSchemeToggle, LocaleSelect, LoggedUserMenu } from '../header';
+import { BandSelect, ColorSchemeToggle, LocaleSelect, LoggedUserMenu } from '../header';
 import { NavbarLink } from '../navbar';
 
 export const DashboardShell = ({ children, user }: { children: React.ReactNode; user: User }) => {
@@ -39,6 +39,7 @@ export const DashboardShell = ({ children, user }: { children: React.ReactNode; 
 
           <Text fw={700}>{tCom('appName')}</Text>
           <Group ml="auto">
+            <BandSelect />
             <LocaleSelect />
             <ColorSchemeToggle />
             <LoggedUserMenu user={user} />

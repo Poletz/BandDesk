@@ -91,7 +91,7 @@ export async function GET() {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.error();
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -151,6 +151,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ bandId: bandRef.id }, { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.error();
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

@@ -12,8 +12,22 @@ import { LiveData } from './live.mock';
 
 // let inMemoryLiveData = cloneData();
 
-const getBookings = async () => {
-  const { data } = await http.get<{ bookings: BookingRequest[] }>('/api/bookings');
+const getBandScopedRequestConfig = (bandId?: string) => {
+  if (!bandId) {
+    return undefined;
+  }
+
+  return {
+    params: { bandId },
+    headers: { 'x-band-id': bandId },
+  };
+};
+
+const getBookings = async (bandId?: string) => {
+  const { data } = await http.get<{ bookings: BookingRequest[] }>(
+    '/api/bookings',
+    getBandScopedRequestConfig(bandId)
+  );
 
   if (!data) {
     return [];
@@ -22,8 +36,11 @@ const getBookings = async () => {
   return data.bookings;
 };
 
-const getVenues = async () => {
-  const { data } = await http.get<{ venues: Venue[] }>('/api/venues');
+const getVenues = async (bandId?: string) => {
+  const { data } = await http.get<{ venues: Venue[] }>(
+    '/api/venues',
+    getBandScopedRequestConfig(bandId)
+  );
 
   if (!data) {
     return [];
@@ -31,8 +48,11 @@ const getVenues = async () => {
   return data.venues;
 };
 
-const getGigs = async () => {
-  const { data } = await http.get<{ gigs: GigEvent[] }>('/api/gigs');
+const getGigs = async (bandId?: string) => {
+  const { data } = await http.get<{ gigs: GigEvent[] }>(
+    '/api/gigs',
+    getBandScopedRequestConfig(bandId)
+  );
 
   if (!data) {
     return [];
@@ -42,11 +62,19 @@ const getGigs = async () => {
 };
 
 export const liveRepository = {
-  list: async (): Promise<LiveData> => ({
-    gigs: await getGigs(),
-    venues: await getVenues(),
-    bookings: await getBookings(),
-  }),
+  list: async (bandId?: string): Promise<LiveData> => {
+    const [gigs, venues, bookings] = await Promise.all([
+      getGigs(bandId),
+      getVenues(bandId),
+      getBookings(bandId),
+    ]);
+
+    return {
+      gigs,
+      venues,
+      bookings,
+    };
+  },
   reset: () => ({
     gigs: [],
     venues: [],

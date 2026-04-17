@@ -1,9 +1,9 @@
-import { ApiErrorCode } from '@/utils/http';
-import { dbUsers } from '@/utils/auth';
 import { BandMembership } from '@/interfaces/bands';
-import { bandMembershipSchema } from '@/utils/zod-band';
-import { BAND_PERMISSIONS, BandPermission, hasBandPermission } from '@/utils/band-permissions';
+import { dbUsers } from '@/utils/auth';
 import { bandMembershipsDB, buildBandMembershipDocId } from '@/utils/band-collections';
+import { BAND_PERMISSIONS, BandPermission, hasBandPermission } from '@/utils/band-permissions';
+import { ApiErrorCode } from '@/utils/http';
+import { bandMembershipSchema } from '@/utils/zod-band';
 
 export class BandAccessError extends Error {
   constructor(
@@ -15,7 +15,10 @@ export class BandAccessError extends Error {
   }
 }
 
-export const getBandMembership = async (userId: string, bandId: string): Promise<BandMembership | null> => {
+export const getBandMembership = async (
+  userId: string,
+  bandId: string
+): Promise<BandMembership | null> => {
   const docId = buildBandMembershipDocId(bandId, userId);
   const doc = await bandMembershipsDB.doc(docId).get();
 
