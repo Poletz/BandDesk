@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { useCallback, useEffect } from 'react';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useTranslations } from 'next-intl';
 import {
   Button,
   Group,
@@ -83,6 +84,8 @@ export const BookingModal = ({
     validate: zod4Resolver(parseBookingSchema),
   });
 
+  const tStatus = useTranslations('Statuses');
+
   const handleClose = useCallback(() => {
     form.reset();
     close();
@@ -153,7 +156,7 @@ export const BookingModal = ({
                   label="Status"
                   data={BOOKING_STATUSES.map((status) => ({
                     value: status,
-                    label: bookingStatusLabel[status],
+                    label: tStatus(`booking.${bookingStatusLabel[status]}`),
                   }))}
                   {...form.getInputProps('status')}
                 />

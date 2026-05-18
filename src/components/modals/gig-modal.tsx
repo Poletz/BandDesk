@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo } from 'react';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useTranslations } from 'next-intl';
 import { Button, Group, Modal, Select, SimpleGrid, Text, Textarea, TextInput } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -29,21 +30,6 @@ const emptyValues: GigPayload = {
   setlistName: undefined,
   notes: undefined,
   bookingId: undefined,
-};
-
-const modalByAction = {
-  [Actions.CREATE]: {
-    title: 'Create gig',
-    submitLabel: 'Create',
-  },
-  [Actions.UPDATE]: {
-    title: 'Edit gig',
-    submitLabel: 'Save changes',
-  },
-  [Actions.VIEW]: {
-    title: 'View gig',
-    submitLabel: 'Close',
-  },
 };
 
 const getValuesFromGig = (gig?: Partial<GigPayload>): GigPayload => {
@@ -76,6 +62,9 @@ export const GigModal = ({
     validateInputOnBlur: true,
     validate: zod4Resolver(parseGigEventSchema),
   });
+
+  const t = useTranslations('SettingsModal');
+  const tStatus = useTranslations('Statuses');
 
   const handleClose = useCallback(() => {
     form.reset();
@@ -130,8 +119,6 @@ export const GigModal = ({
     );
   });
 
-  const modalConfig = modalByAction[type] ?? modalByAction[Actions.CREATE];
-
   const bookingOptions = bookings
     .filter(
       (booking) =>
@@ -150,7 +137,7 @@ export const GigModal = ({
       <Modal.Content>
         <Modal.Header>
           <Modal.Title fz="h3" fw="bold">
-            {modalConfig.title}
+            {t(`gigs_${type}.title`)}
           </Modal.Title>
           <Modal.CloseButton />
         </Modal.Header>
@@ -160,14 +147,14 @@ export const GigModal = ({
               <SimpleGrid>
                 <TextInput
                   withAsterisk
-                  label="Gig title"
+                  label={t('gigs_common.gigTitle')}
                   placeholder="Summer Tour"
                   {...form.getInputProps('title')}
                 />
                 <Select
                   clearable
-                  label="Linked booking"
-                  placeholder="Optional: link a confirmed booking"
+                  label={t('gigs_common.linkedBooking')}
+                  placeholder={t('gigs_common.linkedBookingPlaceholder')}
                   data={bookingOptions}
                   value={form.values.bookingId ?? null}
                   onChange={(value) => form.setFieldValue('bookingId', value ?? undefined)}
@@ -175,16 +162,16 @@ export const GigModal = ({
                 <Select
                   withAsterisk
                   disabled={linkedBooking}
-                  label="Venue"
-                  placeholder="Select venue"
+                  label={t('gigs_common.venue')}
+                  placeholder={t('gigs_common.venuePlaceholder')}
                   data={venues.map((venue) => ({ value: venue.id, label: venue.name }))}
                   {...form.getInputProps('venueId')}
                 />
                 <DateTimePicker
                   withAsterisk
                   disabled={linkedBooking}
-                  label="Gig date"
-                  placeholder="Select date and time"
+                  label={t('gigs_common.gigDate')}
+                  placeholder={t('gigs_common.gigDatePlaceholder')}
                   value={form.values.date ? dayjs(form.values.date).toDate() : null}
                   onChange={(value) =>
                     form.setFieldValue('date', value ? dayjs(value).toISOString() : '')
@@ -193,30 +180,30 @@ export const GigModal = ({
                 <Select
                   withAsterisk
                   disabled={linkedBooking}
-                  label="Status"
+                  label={t('gigs_common.status')}
                   data={BOOKING_STATUSES.map((status) => ({
                     value: status,
-                    label: bookingStatusLabel[status],
+                    label: tStatus(`booking.${bookingStatusLabel[status]}`),
                   }))}
                   {...form.getInputProps('status')}
                 />
                 <TextInput
-                  label="Setlist"
-                  placeholder="Setlist name"
+                  label={t('gigs_common.setlist')}
+                  placeholder={t('gigs_common.setlistPlaceholder')}
                   value={form.values.setlistName ?? ''}
                   onChange={(event) => form.setFieldValue('setlistName', event.currentTarget.value)}
                 />
                 <Textarea
                   autosize
                   minRows={3}
-                  label="Notes"
-                  placeholder="Gig notes"
+                  label={t('gigs_common.notes')}
+                  placeholder={t('gigs_common.notesPlaceholder')}
                   value={form.values.notes ?? ''}
                   onChange={(event) => form.setFieldValue('notes', event.currentTarget.value)}
                 />
                 {linkedBooking ? (
                   <Text size="xs" c="dimmed">
-                    Venue, date and status are synced from the linked booking.
+                    {t('gigs_common.linkedText')}
                   </Text>
                 ) : null}
               </SimpleGrid>
@@ -224,10 +211,10 @@ export const GigModal = ({
             <Group justify="flex-end" m={12}>
               {type !== Actions.VIEW && (
                 <Button variant="subtle" c="red" onClick={handleClose}>
-                  Cancel
+                  {t('gigs_common.cancel')}
                 </Button>
               )}
-              <Button type="submit">{modalConfig.submitLabel}</Button>
+              <Button type="submit">{t(`gigs_${type}.submitLabel`)}</Button>
             </Group>
           </form>
         </Modal.Body>

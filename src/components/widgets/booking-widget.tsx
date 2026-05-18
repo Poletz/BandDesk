@@ -8,6 +8,7 @@ import { bookingStatusLabel } from '@/utils/misc';
 export const BookingWidget = () => {
   const { bookingCountByStatus } = useLiveData();
   const t = useTranslations('Widgets');
+  const tStatus = useTranslations('Statuses');
 
   return (
     <Card withBorder radius="md" p="md">
@@ -20,7 +21,7 @@ export const BookingWidget = () => {
           <Group mt="sm" gap="xs">
             {BOOKING_STATUSES.map((status) => (
               <Badge key={status} variant="light" size="lg">
-                {bookingStatusLabel[status]}: {bookingCountByStatus[status]}
+                {tStatus(`booking.${bookingStatusLabel[status]}`)}: {bookingCountByStatus[status]}
               </Badge>
             ))}
           </Group>

@@ -3,7 +3,8 @@
 import 'dayjs/locale/it';
 import 'dayjs/locale/en';
 
-import { useState } from 'react';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NextIntlClientProvider } from 'next-intl';
 import { MantineProvider } from '@mantine/core';
@@ -32,6 +33,10 @@ export function Providers({ children, locale, messages }: ProvidersProps) {
         },
       })
   );
+
+  useEffect(() => {
+    dayjs.locale(locale);
+  }, [locale]);
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages} timeZone="Europe/Rome">

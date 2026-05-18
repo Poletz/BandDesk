@@ -9,7 +9,10 @@
     },
     "actions": {
       "delete": "Elimina",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "edit": "Modifica",
+      "create": "Crea",
+      "disable": "Disabilita"
     },
     "confirm": {
       "cannotUndo": "Questa azione non può essere annullata."
@@ -68,12 +71,37 @@
   },
   "Settings": {
     "title": "Impostazioni",
-    "profile": "Profilo",
-    "security": "Sicurezza account",
-    "live": "Live e Booking",
-    "documents": "Documenti",
-    "calendar": "Calendario",
-    "users": "Gestione utenti"
+    "profile": {
+      "title": "Profilo"
+    },
+    "security": {
+      "title": "Sicurezza account"
+    },
+    "live": {
+      "title": "Live e Booking"
+    },
+    "documents": {
+      "title": "Documenti"
+    },
+    "calendar": {
+      "title": "Calendario",
+      "year": "Anno",
+      "month": "Mese",
+      "today": "Oggi",
+      "events": "Eventi il",
+      "noevents": "Nessun evento per oggi"
+    },
+    "users": {
+      "title": "Gestione utenti",
+      "name": "Nominativo",
+      "email": "Email",
+      "role": "Ruolo",
+      "status": "Stato",
+      "lastAccess": "Ultimo accesso",
+      "Owner": "Amministratore",
+      "Manager": "Manager",
+      "Member": "Utente"
+    }
   },
   "Home": {
     "welcome": "Benvenuto, {name}!",
@@ -138,6 +166,103 @@
       "disabled": "Disabilitati",
       "description": "Gestisci ruoli del team e stati account dalle Impostazioni.",
       "goTo": "Vai a Gestione utenti"
+    }
+  },
+  "SettingsModal": {
+    "bookings_create": {
+      "title": "Crea booking",
+      "submitLabel": "Crea"
+    },
+    "bookings_update": {
+      "title": "Modifica booking",
+      "submitLabel": "Salva modifiche"
+    },
+    "bookings_view": {
+      "title": "Visualizza booking",
+      "submitLabel": "Chiudi",
+      "createdAt": "Creato il",
+      "updatedAt": "Modificato il"
+    },
+    "bookings_common": {
+      "cancel": "Annulla",
+      "venue": "Locale",
+      "requestedDate": "Data richiesta",
+      "status": "Stato",
+      "feeProposal": "Cachet (€)",
+      "notes": "Note"
+    },
+    "gigs_create": {
+      "title": "Crea Live",
+      "submitLabel": "Crea"
+    },
+    "gigs_update": {
+      "title": "Modifica Live",
+      "submitLabel": "Salva modifiche"
+    },
+    "gigs_view": {
+      "title": "Visualizza Live",
+      "submitLabel": "Chiudi"
+    },
+    "gigs_common": {
+      "gigTitle": "Titolo evento",
+      "linkedBooking": "Booking collegato",
+      "linkedBookingPlaceholder": "Opzionale: collega una data live confermata",
+      "venue": "Locale",
+      "venuePlaceholder": "Seleziona locale",
+      "gigDate": "Data evento",
+      "gigDatePlaceholder": "Seleziona data e ora",
+      "status": "Stato",
+      "setlist": "Lista canzoni",
+      "setlistPlaceholder": "Nome lista canzoni",
+      "notes": "Note",
+      "notesPlaceholder": "Note evento",
+      "cancel": "Annulla",
+      "linkedText": "Locale, data e stato sono sincronizzati dal booking collegato."
+    },
+    "venues_create": {
+      "title": "Crea Locale",
+      "submitLabel": "Crea"
+    },
+    "venues_update": {
+      "title": "Modifica Locale",
+      "submitLabel": "Salva modifiche"
+    },
+    "venues_view": {
+      "title": "Visualizza Locale",
+      "submitLabel": "Chiudi"
+    },
+    "venues_common": {
+      "name": "Nome locale",
+      "city": "Città",
+      "address": "Indirizzo",
+      "contactName": "Nome contatto",
+      "contactEmail": "Email contatto",
+      "contactPhone": "Telefono contatto",
+      "notes": "Note",
+      "cancel": "Annulla"
+    }
+  },
+  "Statuses": {
+    "booking": {
+      "Draft": "Bozza",
+      "Requested": "Richiesta",
+      "Negotiating": "In negoziazione",
+      "Confirmed": "Confermata",
+      "Rejected": "Rifiutata",
+      "Cancelled": "Cancellata"
+    },
+    "gig": {
+      "draft": "Bozza",
+      "requested": "Richiesta",
+      "negotiating": "In negoziazione",
+      "confirmed": "Confermata",
+      "rejected": "Rifiutata",
+      "cancelled": "Cancellata"
+    },
+    "calendar": {
+      "Booking": "Programmazione",
+      "Gig": "Evento",
+      "Reminder": "Promemoria"
     }
   }
 }

@@ -27,7 +27,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
-import { BookingModal, VenueModal } from '@/components/modals';
+import { BookingModal, GigModal, VenueModal } from '@/components/modals';
 import {
   BookingWidget,
   CalendarWidget,
@@ -45,6 +45,7 @@ import { bookingStatusLabel, confirmModal, getBookingStatusColor, getTypeName } 
 export const HomeComponent = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const [venueOpened, { open: venueOpen, close: venueClose }] = useDisclosure(false);
+  const [gigOpened, { open: gigOpen, close: gigClose }] = useDisclosure(false);
   const [bookingOpened, { open: bookingOpen, close: bookingClose }] = useDisclosure(false);
   const [date, setDate] = useState<Date>(new Date());
   const [items, setSelectedItems] = useState<CalendarItem[]>([]);
@@ -54,10 +55,11 @@ export const HomeComponent = () => {
   const [gigDetailsOpened, { open: openGigDetails, close: closeGigDetails }] = useDisclosure(false);
   const [selectedGig, setSelectedGig] = useState<GigEvent | null>(null);
   const queryClient = useQueryClient();
-  const { venueNameById, venues } = useLiveData();
+  const { venueNameById, venues, bookings } = useLiveData();
   const user = useAuthStore((s) => s.user);
   const t = useTranslations('Home');
   const tCom = useTranslations('Common');
+  const tStatus = useTranslations('Statuses');
 
   const setDateAndItems = useCallback(
     (d: Date, nextItems: CalendarItem[]) => {
@@ -211,11 +213,22 @@ export const HomeComponent = () => {
 
   const handleClick = useCallback(
     (type: QuickAction) => {
-      if (type === QuickAction.VENUE) {
-        venueOpen();
+      switch (type) {
+        case QuickAction.LIVE:
+          gigOpen();
+          break;
+        case QuickAction.VENUE:
+          venueOpen();
+          break;
+        case QuickAction.DOC:
+          // docOpen();
+          break;
+
+        default:
+          break;
       }
     },
-    [venueOpen]
+    [venueOpen, gigOpen]
   );
 
   const dateItemsByType = useMemo(() => {
@@ -227,6 +240,13 @@ export const HomeComponent = () => {
 
   return (
     <>
+      <GigModal
+        opened={gigOpened}
+        close={gigClose}
+        type={Actions.CREATE}
+        venues={venues}
+        bookings={bookings}
+      />
       <VenueModal opened={venueOpened} close={venueClose} type={Actions.CREATE} />
       <BookingModal
         opened={bookingOpened}
@@ -265,7 +285,7 @@ export const HomeComponent = () => {
                     autoContrast
                     color={getBookingStatusColor(item.status)}
                   >
-                    {bookingStatusLabel[item.status]}
+                    {tStatus(`booking.${bookingStatusLabel[item.status]}`)}
                   </Badge>
                 ) : null}
               </Group>

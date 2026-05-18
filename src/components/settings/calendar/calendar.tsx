@@ -2,6 +2,7 @@
 
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Badge, Card, Group, ScrollArea, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useCalendarData } from '@/hooks/use-calendar-data';
 import { CalendarItem } from '@/interfaces';
@@ -18,6 +19,9 @@ export const CalendarComponent = () => {
   const [items, setSelectedItems] = useState<CalendarItem[] | []>([]);
   const { getBookingStatusColor } = useCalendarData(date);
 
+  const t = useTranslations('Settings');
+  const tStatus = useTranslations('Statuses');
+
   return (
     <Stack
       w="100%"
@@ -25,7 +29,7 @@ export const CalendarComponent = () => {
         height: '100%',
       }}
     >
-      <Title order={3}>Calendar</Title>
+      <Title order={3}>{t('calendar.title')}</Title>
       <ScrollArea style={{ height: 'calc(100dvh-30px-56px-35px-80px)' }}>
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg" verticalSpacing="lg">
           <ScheduleComponent
@@ -37,14 +41,16 @@ export const CalendarComponent = () => {
 
           <Card withBorder h="fit-content">
             <Group justify="space-between" mb="sm">
-              <Title order={4}>Events on {dayjs(date).format('DD MMMM YYYY')}</Title>
+              <Title order={4}>
+                {t('calendar.events')} {dayjs(date).format('DD MMMM YYYY')}
+              </Title>
               <Badge variant="light">{items.length}</Badge>
             </Group>
 
             <Stack gap="xs">
               {items.length === 0 ? (
                 <Text c="dimmed" size="sm">
-                  No events for this day.
+                  {t('calendar.noevents')}.
                 </Text>
               ) : (
                 items.map((item) => (
@@ -52,12 +58,12 @@ export const CalendarComponent = () => {
                     <div>
                       <Text fw={600}>{item.title}</Text>
                       <Text size="sm" c="dimmed">
-                        {itemTypeLabel[item.type]}
+                        {tStatus(`calendar.${itemTypeLabel[item.type]}`)}
                       </Text>
                       {/* <Text fw={600}>{item.title}</Text> */}
                     </div>
                     <Badge color={getBookingStatusColor(item.status)} variant="light">
-                      {item.status ?? 'n/a'}
+                      {tStatus(`gig.${item.status}`) ?? 'n/a'}
                     </Badge>
                   </Group>
                 ))

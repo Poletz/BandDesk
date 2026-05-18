@@ -9,21 +9,20 @@ import {
   Card,
   Divider,
   Group,
-  Popover,
-  PopoverDropdown,
-  PopoverTarget,
+  HoverCard,
+  HoverCardDropdown,
+  HoverCardTarget,
   ScrollAreaAutosize,
   Stack,
   Text,
   Title,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { useLiveData } from '@/hooks/use-live-data';
 import { getBookingStatusColor } from '@/utils/misc';
 
 export const LiveWidget = () => {
-  const [opened, { close, open }] = useDisclosure(false);
   const t = useTranslations('Widgets');
+  const tStatus = useTranslations('Statuses');
   const { upcomingGigs, venueNameById } = useLiveData();
 
   const uniqueUpcomingGigs = useMemo(() => {
@@ -63,15 +62,15 @@ export const LiveWidget = () => {
                       autoContrast
                       color={getBookingStatusColor(gig.status)}
                     >
-                      {gig.status.toUpperCase()}
+                      {tStatus(`gig.${gig.status}`).toUpperCase()}
                     </Badge>
                     {gig.notes ? (
-                      <Popover opened={opened}>
-                        <PopoverTarget>
-                          <IconNotes onMouseEnter={open} onMouseLeave={close} />
-                        </PopoverTarget>
-                        <PopoverDropdown>{gig.notes}</PopoverDropdown>
-                      </Popover>
+                      <HoverCard>
+                        <HoverCardTarget>
+                          <IconNotes />
+                        </HoverCardTarget>
+                        <HoverCardDropdown>{gig.notes}</HoverCardDropdown>
+                      </HoverCard>
                     ) : null}
                   </div>
                   <Text size="sm" c="dimmed">

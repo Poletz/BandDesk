@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
 import { IconEdit, IconEye, IconPlus, IconTicket, IconTrash } from '@tabler/icons-react';
 import { isAxiosError } from 'axios';
+import { useTranslations } from 'next-intl';
 import {
   ActionIcon,
   Badge,
@@ -50,6 +51,8 @@ export const LiveAndBookingComponent = () => {
   const [bookingModalType, setBookingModalType] = useState<Actions>(Actions.VIEW);
   const [gigModalType, setGigModalType] = useState<Actions>(Actions.VIEW);
 
+  const tStatus = useTranslations('Statuses');
+
   const handleVenueSubmit = useCallback(
     async (values?: Omit<Venue, 'id'>, type?: Actions) => {
       if (!values || type === Actions.VIEW) {
@@ -82,7 +85,7 @@ export const LiveAndBookingComponent = () => {
 
   const handleBookingSubmit = useCallback(
     async (values?: Omit<BookingRequest, 'id' | 'createdAt' | 'updatedAt'>, type?: Actions) => {
-      if (!values) {
+      if (!values || type === Actions.VIEW) {
         setSelectedBooking(null);
         closeBookingModal();
         return;
@@ -215,7 +218,7 @@ export const LiveAndBookingComponent = () => {
             <Group mt="sm" gap="xs">
               {BOOKING_STATUSES.map((status) => (
                 <Badge key={status} variant="light" size="lg">
-                  {bookingStatusLabel[status]}: {bookingCountByStatus[status]}
+                  {tStatus(`booking.${bookingStatusLabel[status]}`)}: {bookingCountByStatus[status]}
                 </Badge>
               ))}
             </Group>

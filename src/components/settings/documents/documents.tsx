@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useTranslations } from 'next-intl';
 import { Badge, Card, Group, ScrollArea, Stack, Table, Text, Title } from '@mantine/core';
 import { useDocumentsData } from '@/hooks/use-documents-data';
 import { categoryLabel } from '@/interfaces';
@@ -8,9 +9,11 @@ import { categoryLabel } from '@/interfaces';
 export const DocumentsComponent = () => {
   const { documents, documentCountByCategory } = useDocumentsData();
 
+  const t = useTranslations('Settings');
+
   return (
     <Stack w="100%" maw={1000}>
-      <Title order={3}>Documents</Title>
+      <Title order={3}>{t('documents.title')}</Title>
 
       <Card withBorder>
         <Text size="sm" c="dimmed">
