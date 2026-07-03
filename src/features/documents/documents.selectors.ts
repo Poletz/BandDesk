@@ -2,7 +2,7 @@ import { BandDocument, DocumentCategory } from '@/interfaces';
 
 export const getRecentDocuments = (documents: BandDocument[], limit = 3) => {
   return [...documents]
-    .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, limit);
 };
 

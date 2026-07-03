@@ -36,7 +36,7 @@ export const DocumentsWidget = () => {
                   </div>
                 </Group>
                 <Text size="xs" c="dimmed">
-                  {dayjs(document.uploadedAt).format('DD MMM')}
+                  {dayjs(document.createdAt).format('DD MMM')}
                 </Text>
               </Group>
             ))

@@ -6,7 +6,9 @@ export type DocumentCategory =
   | 'songbook'
   | 'other';
 
-export const categoryLabel: Record<string, string> = {
+export type DocumentVisibility = 'public' | 'members' | 'admins';
+
+export const categoryLabel: Record<DocumentCategory, string> = {
   'technical-rider': 'Technical rider',
   'stage-plot': 'Stage plot',
   agibility: 'Agibility',
@@ -17,10 +19,16 @@ export const categoryLabel: Record<string, string> = {
 
 export interface BandDocument {
   id: string;
+  bandId: string;
+  bucket: string;
+  key: string;
   title: string;
-  category: DocumentCategory;
   fileName: string;
-  fileUrl: string;
-  uploadedAt: string; // ISO
-  tags?: string[];
+  fileSizeBytes: number;
+  contentType: string;
+  category: DocumentCategory;
+  visibility: DocumentVisibility;
+  uploadedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
 }

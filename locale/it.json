@@ -81,7 +81,49 @@
       "title": "Live e Booking"
     },
     "documents": {
-      "title": "Documenti"
+      "title": "Documenti",
+      "empty": "Nessun documento caricato",
+      "upload": "Carica documento",
+      "uploadModalTitle": "Carica documento",
+      "form": {
+        "title": "Titolo",
+        "titlePlaceholder": "Titolo del documento",
+        "category": "Categoria",
+        "file": "File",
+        "filePlaceholder": "Seleziona un file (PDF, immagine, DOCX, XLSX — max 10 MB)",
+        "submit": "Carica",
+        "cancel": "Annulla"
+      },
+      "categories": {
+        "technical-rider": "Technical rider",
+        "stage-plot": "Stage plot",
+        "agibility": "Agibilità",
+        "siae": "SIAE",
+        "songbook": "Canzoniere",
+        "other": "Altro"
+      },
+      "table": {
+        "title": "Titolo",
+        "category": "Categoria",
+        "fileName": "Nome file",
+        "size": "Dimensione",
+        "uploadedAt": "Caricato il"
+      },
+      "actions": {
+        "download": "Scarica",
+        "delete": "Elimina"
+      },
+      "confirm": {
+        "deleteTitle": "Eliminare il documento?",
+        "deleteBody": "Questa azione non può essere annullata."
+      },
+      "notifications": {
+        "uploadSuccess": "Documento caricato con successo.",
+        "uploadError": "Caricamento fallito. Riprova.",
+        "deleteSuccess": "Documento eliminato.",
+        "deleteError": "Impossibile eliminare il documento.",
+        "downloadError": "Impossibile ottenere il link di download."
+      }
     },
     "calendar": {
       "title": "Calendario",

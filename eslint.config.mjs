@@ -28,6 +28,7 @@ export default defineConfig(
         { checksVoidReturn: { attributes: false } },
       ],
       'react/jsx-no-leaked-render': ['error', { validStrategies: ['coerce', 'ternary'] }],
+      '@eslint/curly': 'off',
     },
   },
   { ignores: ['**/*.{mjs,cjs,js,d.ts,d.mts}', '.next'] },

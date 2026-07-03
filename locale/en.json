@@ -68,12 +68,73 @@
   },
   "Settings": {
     "title": "Settings",
-    "profile": "Profile",
-    "security": "Account security",
-    "live": "Live & Booking",
-    "documents": "Documents",
-    "calendar": "Calendar",
-    "users": "Manage Users"
+    "profile": { "title": "Profile" },
+    "security": { "title": "Account security" },
+    "live": { "title": "Live & Booking" },
+    "documents": {
+      "title": "Documents",
+      "empty": "No documents uploaded yet",
+      "upload": "Upload document",
+      "uploadModalTitle": "Upload document",
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Document title",
+        "category": "Category",
+        "file": "File",
+        "filePlaceholder": "Select a file (PDF, image, DOCX, XLSX — max 10 MB)",
+        "submit": "Upload",
+        "cancel": "Cancel"
+      },
+      "categories": {
+        "technical-rider": "Technical rider",
+        "stage-plot": "Stage plot",
+        "agibility": "Agibility",
+        "siae": "SIAE",
+        "songbook": "Songbook",
+        "other": "Other"
+      },
+      "table": {
+        "title": "Title",
+        "category": "Category",
+        "fileName": "File name",
+        "size": "Size",
+        "uploadedAt": "Uploaded"
+      },
+      "actions": {
+        "download": "Download",
+        "delete": "Delete"
+      },
+      "confirm": {
+        "deleteTitle": "Delete document?",
+        "deleteBody": "This action cannot be undone."
+      },
+      "notifications": {
+        "uploadSuccess": "Document uploaded successfully.",
+        "uploadError": "Upload failed. Please try again.",
+        "deleteSuccess": "Document deleted.",
+        "deleteError": "Unable to delete document.",
+        "downloadError": "Unable to get download link."
+      }
+    },
+    "calendar": {
+      "title": "Calendar",
+      "year": "Year",
+      "month": "Month",
+      "today": "Today",
+      "events": "Events on",
+      "noevents": "No events today"
+    },
+    "users": {
+      "title": "Manage Users",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "lastAccess": "Last access",
+      "Owner": "Administrator",
+      "Manager": "Manager",
+      "Member": "Member"
+    }
   },
   "Home": {
     "welcome": "Welcome, {name}!",

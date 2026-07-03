@@ -29,6 +29,7 @@ export const useBandContext = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['live-data'] }),
         queryClient.invalidateQueries({ queryKey: ['calendar-data'] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
       ]);
     },
   });

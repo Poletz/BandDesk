@@ -51,12 +51,12 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         }}
       >
         <Tabs.List mb={20}>
-          <Tabs.Tab value={Tab.PROFILE}>{t('profile')}</Tabs.Tab>
-          <Tabs.Tab value={Tab.SECURITY}>{t('security')}</Tabs.Tab>
-          <Tabs.Tab value={Tab.LIVE}>{t('live')}</Tabs.Tab>
-          <Tabs.Tab value={Tab.DOCS}>{t('documents')}</Tabs.Tab>
-          <Tabs.Tab value={Tab.CALENDAR}>{t('calendar')}</Tabs.Tab>
-          <Tabs.Tab value={Tab.USERS}>{t('users')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.PROFILE}>{t('profile.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.SECURITY}>{t('security.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.LIVE}>{t('live.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.DOCS}>{t('documents.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.CALENDAR}>{t('calendar.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.USERS}>{t('users.title')}</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="profile" style={{ display: 'flex', justifyContent: 'center' }}>
