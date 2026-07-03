@@ -4,11 +4,13 @@ import { isAxiosError } from 'axios';
 import { Venue as FormVenue } from '@/interfaces';
 import {
   isAuthenticatedUser,
+  missingBandIdError,
   sessionExpiredError,
   validationError,
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
+import { BandAccessError, requireActiveBandMembership } from '@/utils/band-access';
 import {
   validParseVenueSchema,
   Venue,
@@ -18,15 +20,22 @@ import {
 
 const venuesDB = db.collection('venues');
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
-    const dbData = await venuesDB.where('ownerId', '==', user.id).get();
+    await requireActiveBandMembership(user.id, bandId);
+
+    const dbData = await venuesDB.where('bandId', '==', bandId).get();
 
     const venues: Venue[] = dbData.docs.map((doc) => {
       const data = venueSchema.parse(doc.data());
@@ -47,6 +56,10 @@ export async function GET() {
 
     return NextResponse.json<{ venues: Venue[] }>({ venues });
   } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
     console.error(err);
     if (isAxiosError(err)) {
       return NextResponse.json({ message: err.message }, { status: err.status });
@@ -62,7 +75,14 @@ export async function POST(req: NextRequest) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
+    await requireActiveBandMembership(user.id, bandId);
+
     const data: Omit<FormVenue, 'id'> = await req.json();
 
     const parsedData = validParseVenueSchema.safeParse(data);
@@ -74,6 +94,7 @@ export async function POST(req: NextRequest) {
     const now = dayjs().toISOString();
     const venue = {
       ...parsedData.data,
+      bandId,
       ownerId: user.id,
       createdAt: now,
       updatedAt: now,
@@ -83,11 +104,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: doc.id }, { status: 200 });
   } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
     console.error(err);
     if (isAxiosError(err)) {
       return NextResponse.json(err, { status: err.status });
     }
-
     return NextResponse.error();
   }
 }

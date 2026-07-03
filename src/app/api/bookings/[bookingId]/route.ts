@@ -6,12 +6,14 @@ import {
   forbiddenItemError,
   GigBookingRuleError,
   isAuthenticatedUser,
+  missingBandIdError,
   notFoundError,
   sessionExpiredError,
   validationError,
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
+import { BandAccessError, requireActiveBandMembership } from '@/utils/band-access';
 import {
   Booking,
   bookingResponseSchema,
@@ -85,14 +87,21 @@ const mapBookingDetailResponse = async (
   });
 };
 
-export async function GET(_req: NextRequest, ctx: BookingRouteContext) {
+export async function GET(req: NextRequest, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
+    await requireActiveBandMembership(user.id, bandId);
+
     const { bookingId } = await ctx.params;
     const doc = await bookingsDB.doc(bookingId).get();
 
@@ -102,7 +111,7 @@ export async function GET(_req: NextRequest, ctx: BookingRouteContext) {
 
     const booking = bookingSchema.parse(doc.data());
 
-    if (booking.ownerId !== user.id) {
+    if (booking.bandId !== bandId) {
       return forbiddenItemError();
     }
 
@@ -110,6 +119,10 @@ export async function GET(_req: NextRequest, ctx: BookingRouteContext) {
       booking: await mapBookingDetailResponse(doc.id, booking),
     });
   } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
     if (isAxiosError(err)) {
       return NextResponse.json(err, { status: err.status });
     }
@@ -118,11 +131,25 @@ export async function GET(_req: NextRequest, ctx: BookingRouteContext) {
   }
 }
 
-export async function PATCH(req: Request, ctx: BookingRouteContext) {
+export async function PATCH(req: NextRequest, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
+  }
+
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
+  try {
+    await requireActiveBandMembership(user.id, bandId);
+  } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+    return NextResponse.error();
   }
 
   const { bookingId } = await ctx.params;
@@ -145,7 +172,7 @@ export async function PATCH(req: Request, ctx: BookingRouteContext) {
         throw new GigBookingRuleError('Booking not found', 404, 'NOT_FOUND');
       }
       const currentBooking = bookingSchema.parse(bookingSnapshot.data());
-      if (currentBooking.ownerId !== user.id) {
+      if (currentBooking.bandId !== bandId) {
         throw new GigBookingRuleError('You cannot access this item.', 403, 'UNAUTHORIZED');
       }
       const rawHasGigId = Object.hasOwn(data, 'gigId');
@@ -179,7 +206,7 @@ export async function PATCH(req: Request, ctx: BookingRouteContext) {
         if (previousGigSnapshot.exists) {
           const previousGig = gigEventSchema.parse(previousGigSnapshot.data());
 
-          if (previousGig.ownerId === user.id && previousGig.bookingId === bookingId) {
+          if (previousGig.bandId === bandId && previousGig.bookingId === bookingId) {
             transaction.update(previousGigRef, {
               bookingId: null,
               updatedAt: now,
@@ -201,7 +228,7 @@ export async function PATCH(req: Request, ctx: BookingRouteContext) {
 
         const linkedGig = gigEventSchema.parse(linkedGigSnapshot.data());
 
-        if (linkedGig.ownerId !== user.id) {
+        if (linkedGig.bandId !== bandId) {
           throw new GigBookingRuleError('You cannot access this item.', 403, 'UNAUTHORIZED');
         }
 
@@ -254,16 +281,23 @@ export async function PATCH(req: Request, ctx: BookingRouteContext) {
   }
 }
 
-export async function DELETE(_req: Request, ctx: BookingRouteContext) {
+export async function DELETE(req: NextRequest, ctx: BookingRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   const { bookingId } = await ctx.params;
 
   try {
+    await requireActiveBandMembership(user.id, bandId);
+
     await db.runTransaction(async (transaction) => {
       const bookingRef = bookingsDB.doc(bookingId);
       const bookingSnapshot = await transaction.get(bookingRef);
@@ -273,7 +307,7 @@ export async function DELETE(_req: Request, ctx: BookingRouteContext) {
 
       const booking = bookingSchema.parse(bookingSnapshot.data());
 
-      if (booking.ownerId !== user.id) {
+      if (booking.bandId !== bandId) {
         throw new GigBookingRuleError('You cannot access this item.', 403, 'UNAUTHORIZED');
       }
 
@@ -282,7 +316,7 @@ export async function DELETE(_req: Request, ctx: BookingRouteContext) {
         const gigSnapshot = await transaction.get(gigRef);
         if (gigSnapshot.exists) {
           const gig = gigEventSchema.parse(gigSnapshot.data());
-          if (gig.ownerId === user.id && gig.bookingId === bookingId) {
+          if (gig.bandId === bandId && gig.bookingId === bookingId) {
             transaction.update(gigRef, {
               bookingId: null,
               updatedAt: new Date().toISOString(),
@@ -298,6 +332,10 @@ export async function DELETE(_req: Request, ctx: BookingRouteContext) {
   } catch (err) {
     if (err instanceof GigBookingRuleError) {
       return apiError(err.message, err.code, err.status);
+    }
+
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
     }
 
     if (isAxiosError(err)) {

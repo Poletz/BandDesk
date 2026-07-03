@@ -48,6 +48,10 @@ export function emptyUpdateError() {
   return NextResponse.json({ message: EMPTY_UPDATE_MESSAGE }, { status: 400 });
 }
 
+export function missingBandIdError() {
+  return apiError('Band context is required', 'VALIDATION_ERROR', 400);
+}
+
 export class GigBookingRuleError extends Error {
   constructor(
     message: string,

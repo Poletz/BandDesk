@@ -27,8 +27,11 @@ export const getBookingsCountByStatus = (bookings: BookingRequest[]) => {
 };
 
 export const getUpcomingGigs = (gigs: GigEvent[], limit = 3) => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
   return gigs
-    .filter((gig) => gig.status !== 'cancelled')
+    .filter((gig) => gig.status !== 'cancelled' && new Date(gig.date) >= now)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, limit);
 };

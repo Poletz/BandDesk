@@ -5,11 +5,13 @@ import {
   apiError,
   GigBookingRuleError,
   isAuthenticatedUser,
+  missingBandIdError,
   sessionExpiredError,
   validationError,
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
+import { BandAccessError, requireActiveBandMembership } from '@/utils/band-access';
 import {
   bookingSchema,
   GigEvent,
@@ -35,15 +37,22 @@ const mapGigDocToResponse = (id: string, gig: GigDocument): GigEvent =>
     ...(gig.bookingId ? { bookingId: gig.bookingId } : {}),
   });
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
-    const dbData = await gigsDB.where('ownerId', '==', user.id).get();
+    await requireActiveBandMembership(user.id, bandId);
+
+    const dbData = await gigsDB.where('bandId', '==', bandId).get();
 
     const gigs: GigEvent[] = dbData.docs.map((doc) => {
       const data = gigEventSchema.parse(doc.data());
@@ -53,6 +62,10 @@ export async function GET() {
 
     return NextResponse.json<{ gigs: GigEvent[] }>({ gigs });
   } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
     if (isAxiosError(err)) {
       return NextResponse.json({ message: err.message }, { status: err.status });
     }
@@ -68,7 +81,14 @@ export async function POST(req: NextRequest) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
+    await requireActiveBandMembership(user.id, bandId);
+
     const data = await req.json();
 
     const parsedData = validParseGigEventSchema.safeParse(data);
@@ -87,6 +107,7 @@ export async function POST(req: NextRequest) {
       if (!requestedBookingId) {
         transaction.create(gigRef, {
           ...parsedData.data,
+          bandId,
           ownerId: user.id,
           createdAt: now,
           updatedAt: now,
@@ -107,7 +128,7 @@ export async function POST(req: NextRequest) {
 
       const booking = bookingSchema.parse(bookingSnapshot.data());
 
-      if (booking.ownerId !== user.id) {
+      if (booking.bandId !== bandId) {
         throw new GigBookingRuleError('You cannot access this item.', 403, 'UNAUTHORIZED');
       }
 
@@ -133,6 +154,7 @@ export async function POST(req: NextRequest) {
         date: booking.requestedDate ?? parsedData.data.date,
         status: booking.status,
         bookingId: requestedBookingId,
+        bandId,
         ownerId: user.id,
         createdAt: now,
         updatedAt: now,
@@ -150,6 +172,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof GigBookingRuleError) {
       return apiError(err.message, err.code, err.status);
+    }
+
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
     }
 
     if (isAxiosError(err)) {

@@ -1,6 +1,6 @@
 import { BandMembership } from '@/interfaces/bands';
 import { dbUsers } from '@/utils/auth';
-import { bandMembershipsDB, buildBandMembershipDocId } from '@/utils/band-collections';
+import { bandMembershipsDB } from '@/utils/band-collections';
 import { BAND_PERMISSIONS, BandPermission, hasBandPermission } from '@/utils/band-permissions';
 import { ApiErrorCode } from '@/utils/http';
 import { bandMembershipSchema } from '@/utils/zod-band';
@@ -19,13 +19,17 @@ export const getBandMembership = async (
   userId: string,
   bandId: string
 ): Promise<BandMembership | null> => {
-  const docId = buildBandMembershipDocId(bandId, userId);
-  const doc = await bandMembershipsDB.doc(docId).get();
+  const snapshot = await bandMembershipsDB
+    .where('userId', '==', userId)
+    .where('bandId', '==', bandId)
+    .limit(1)
+    .get();
 
-  if (!doc.exists) {
+  if (snapshot.empty) {
     return null;
   }
 
+  const doc = snapshot.docs[0];
   const membership = bandMembershipSchema.parse(doc.data());
   return {
     id: doc.id,

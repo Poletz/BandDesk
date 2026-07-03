@@ -5,25 +5,34 @@ import {
   emptyUpdateError,
   forbiddenItemError,
   isAuthenticatedUser,
+  missingBandIdError,
   notFoundError,
   sessionExpiredError,
   validationError,
 } from '@/utils/api-response-helper';
 import { getServerSession } from '@/utils/auth';
 import { db } from '@/utils/db';
+import { BandAccessError, requireActiveBandMembership } from '@/utils/band-access';
 import { validParseVenueSchema } from '@/utils/zod-interfaces';
 
 const venuesDB = db.collection('venues');
 type VenueRouteContext = { params: Promise<{ venueId: string }> };
 
-export async function GET(_req: NextRequest, ctx: VenueRouteContext) {
+export async function GET(req: NextRequest, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
+  }
+
   try {
+    await requireActiveBandMembership(user.id, bandId);
+
     const { venueId } = await ctx.params;
     const doc = await venuesDB.doc(venueId).get();
 
@@ -33,7 +42,7 @@ export async function GET(_req: NextRequest, ctx: VenueRouteContext) {
 
     const venue = doc.data();
 
-    if (venue?.ownerId !== user.id) {
+    if (venue?.bandId !== bandId) {
       return forbiddenItemError();
     }
 
@@ -45,6 +54,10 @@ export async function GET(_req: NextRequest, ctx: VenueRouteContext) {
       },
     });
   } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
     if (isAxiosError(err)) {
       return NextResponse.json(err, { status: err.status });
     }
@@ -53,70 +66,108 @@ export async function GET(_req: NextRequest, ctx: VenueRouteContext) {
   }
 }
 
-export async function PATCH(req: Request, ctx: VenueRouteContext) {
+export async function PATCH(req: NextRequest, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
-  const { venueId } = await ctx.params;
-  const data = await req.json();
-  const parsedData = validParseVenueSchema.safeParse(data);
-
-  if (!parsedData.success) {
-    return validationError(parsedData.error);
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
   }
 
-  if (Object.keys(parsedData.data).length === 0) {
-    return emptyUpdateError();
+  try {
+    await requireActiveBandMembership(user.id, bandId);
+
+    const { venueId } = await ctx.params;
+    const data = await req.json();
+    const parsedData = validParseVenueSchema.safeParse(data);
+
+    if (!parsedData.success) {
+      return validationError(parsedData.error);
+    }
+
+    if (Object.keys(parsedData.data).length === 0) {
+      return emptyUpdateError();
+    }
+
+    const doc = await venuesDB.doc(venueId).get();
+
+    if (!doc.exists) {
+      return notFoundError('Venue');
+    }
+
+    if (doc.data()?.bandId !== bandId) {
+      return forbiddenItemError();
+    }
+
+    await venuesDB.doc(venueId).update({
+      ...parsedData.data,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const updatedDoc = await venuesDB.doc(venueId).get();
+
+    return NextResponse.json<{ venue: Venue }>({
+      venue: {
+        id: updatedDoc.id,
+        name: updatedDoc.data()!.name,
+        ...updatedDoc.data(),
+      },
+    });
+  } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
+    if (isAxiosError(err)) {
+      return NextResponse.json(err, { status: err.status });
+    }
+
+    return NextResponse.error();
   }
-
-  const doc = await venuesDB.doc(venueId).get();
-
-  if (!doc.exists) {
-    return notFoundError('Venue');
-  }
-
-  if (doc.data()?.ownerId !== user.id) {
-    return forbiddenItemError();
-  }
-
-  await venuesDB.doc(venueId).update({
-    ...parsedData.data,
-    updatedAt: new Date().toISOString(),
-  });
-
-  const updatedDoc = await venuesDB.doc(venueId).get();
-
-  return NextResponse.json<{ venue: Venue }>({
-    venue: {
-      id: updatedDoc.id,
-      name: updatedDoc.data()!.name,
-      ...updatedDoc.data(),
-    },
-  });
 }
 
-export async function DELETE(_req: Request, ctx: VenueRouteContext) {
+export async function DELETE(req: NextRequest, ctx: VenueRouteContext) {
   const { user } = await getServerSession();
 
   if (!isAuthenticatedUser(user)) {
     return sessionExpiredError();
   }
 
-  const { venueId } = await ctx.params;
-  const doc = await venuesDB.doc(venueId).get();
-
-  if (!doc.exists) {
-    return notFoundError('Venue');
+  const bandId = req.headers.get('x-band-id');
+  if (!bandId) {
+    return missingBandIdError();
   }
 
-  if (doc.data()?.ownerId !== user.id) {
-    return forbiddenItemError();
+  try {
+    await requireActiveBandMembership(user.id, bandId);
+
+    const { venueId } = await ctx.params;
+    const doc = await venuesDB.doc(venueId).get();
+
+    if (!doc.exists) {
+      return notFoundError('Venue');
+    }
+
+    if (doc.data()?.bandId !== bandId) {
+      return forbiddenItemError();
+    }
+
+    await venuesDB.doc(venueId).delete();
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    if (err instanceof BandAccessError) {
+      return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+    }
+
+    if (isAxiosError(err)) {
+      return NextResponse.json(err, { status: err.status });
+    }
+
+    return NextResponse.error();
   }
-
-  await venuesDB.doc(venueId).delete();
-
-  return NextResponse.json({ ok: true });
 }
