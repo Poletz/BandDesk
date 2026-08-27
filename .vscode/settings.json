@@ -10,5 +10,6 @@
         "Venues",
         "Bookings",
         "Gigs"
-    ]
+    ],
+    "npm-visual-manager.ignoredPackages": []
 }
