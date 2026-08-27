@@ -15,7 +15,7 @@ type Context = { params: Promise<{ bandId: string }> };
 
 export async function GET(_req: NextRequest, ctx: Context) {
   const { user } = await getServerSession();
-  if (!isAuthenticatedUser(user)) return sessionExpiredError();
+  if (!isAuthenticatedUser(user)) {return sessionExpiredError();}
 
   const { bandId } = await ctx.params;
 
@@ -41,7 +41,7 @@ export async function GET(_req: NextRequest, ctx: Context) {
 
 export async function POST(req: NextRequest, ctx: Context) {
   const { user } = await getServerSession();
-  if (!isAuthenticatedUser(user)) return sessionExpiredError();
+  if (!isAuthenticatedUser(user)) {return sessionExpiredError();}
 
   const { bandId } = await ctx.params;
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest, ctx: Context) {
 
     const rawData = await req.json();
     const parsed = createDocumentSchema.safeParse(rawData);
-    if (!parsed.success) return validationError(parsed.error);
+    if (!parsed.success) {return validationError(parsed.error);}
 
     // Verify the file actually exists in Storage before saving metadata
     const bucket = getStorageBucket();

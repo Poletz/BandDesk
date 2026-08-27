@@ -1,13 +1,15 @@
-import admin from 'firebase-admin';
-import { cert } from 'firebase-admin/app';
+import { cert, initializeApp, type App } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 declare global {
-  var __betterAuthFirestore: ReturnType<typeof admin.initializeApp> | undefined;
+  var __betterAuthFirestoreApp: App | undefined;
 }
 
-const firestore =
-  global.__betterAuthFirestore ??
-  (global.__betterAuthFirestore = admin.initializeApp(
+const isNewApp = !global.__betterAuthFirestoreApp;
+
+export const betterAuthApp =
+  global.__betterAuthFirestoreApp ??
+  (global.__betterAuthFirestoreApp = initializeApp(
     {
       credential: cert({
         projectId: process.env.FIREBASE_PROJECT_ID!,
@@ -19,8 +21,8 @@ const firestore =
     'better-auth'
   ));
 
-if (!global.__betterAuthFirestore) {
-  admin.firestore(admin.app('better-auth')).settings({ ignoreUndefinedProperties: true });
-}
+export const db = getFirestore(betterAuthApp);
 
-export const db = firestore.firestore();
+if (isNewApp) {
+  db.settings({ ignoreUndefinedProperties: true });
+}

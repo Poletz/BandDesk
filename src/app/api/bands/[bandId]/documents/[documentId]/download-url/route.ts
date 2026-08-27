@@ -16,7 +16,7 @@ type Context = { params: Promise<{ bandId: string; documentId: string }> };
 
 export async function GET(_req: NextRequest, ctx: Context) {
   const { user } = await getServerSession();
-  if (!isAuthenticatedUser(user)) return sessionExpiredError();
+  if (!isAuthenticatedUser(user)) {return sessionExpiredError();}
 
   const { bandId, documentId } = await ctx.params;
 
@@ -24,10 +24,10 @@ export async function GET(_req: NextRequest, ctx: Context) {
     await requireActiveBandMembership(user.id, bandId);
 
     const snapshot = await bandDocumentsDB.doc(documentId).get();
-    if (!snapshot.exists) return notFoundError('Document');
+    if (!snapshot.exists) {return notFoundError('Document');}
 
     const document = bandDocumentSchema.parse(snapshot.data());
-    if (document.bandId !== bandId) return forbiddenItemError();
+    if (document.bandId !== bandId) {return forbiddenItemError();}
 
     const url = await getSignedDownloadUrl(document.key);
     return NextResponse.json({ url });

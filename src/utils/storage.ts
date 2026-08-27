@@ -1,11 +1,9 @@
-import admin from 'firebase-admin';
-// Ensure Firebase Admin app is initialized
-import '@/utils/db';
+import { getStorage } from 'firebase-admin/storage';
+
+import { betterAuthApp } from '@/utils/db';
 
 export const getStorageBucket = () => {
-  return admin
-    .storage(admin.app('better-auth'))
-    .bucket(process.env.FIREBASE_STORAGE_BUCKET!);
+  return getStorage(betterAuthApp).bucket(process.env.FIREBASE_STORAGE_BUCKET!);
 };
 
 export const ALLOWED_CONTENT_TYPES = [

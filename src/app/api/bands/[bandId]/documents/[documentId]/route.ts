@@ -16,7 +16,7 @@ type Context = { params: Promise<{ bandId: string; documentId: string }> };
 
 export async function DELETE(_req: NextRequest, ctx: Context) {
   const { user } = await getServerSession();
-  if (!isAuthenticatedUser(user)) return sessionExpiredError();
+  if (!isAuthenticatedUser(user)) {return sessionExpiredError();}
 
   const { bandId, documentId } = await ctx.params;
 
@@ -26,11 +26,11 @@ export async function DELETE(_req: NextRequest, ctx: Context) {
     const docRef = bandDocumentsDB.doc(documentId);
     const snapshot = await docRef.get();
 
-    if (!snapshot.exists) return notFoundError('Document');
+    if (!snapshot.exists) {return notFoundError('Document');}
 
     const document = bandDocumentSchema.parse(snapshot.data());
 
-    if (document.bandId !== bandId) return forbiddenItemError();
+    if (document.bandId !== bandId) {return forbiddenItemError();}
 
     // Delete from Storage, then from Firestore
     await deleteStorageFile(document.key);
