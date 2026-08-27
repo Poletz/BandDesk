@@ -5,7 +5,14 @@ Schema pensato per:
 - ruoli per-band (`admin`, `member`, `guest`)
 - inviti tokenizzati
 - setlist collaborative
-- storage metadata per file S3
+- storage metadata per file su Firebase Storage (bucket GCS)
+
+## Stato implementazione (aggiornato 2026-08-27)
+
+- `bands`, `band_memberships`, `band_invites`, `band_documents`, `audit_logs`: implementati, API + UI complete.
+- `setlists`: solo backend (API REST + permessi + tipi TS). Nessuna UI — vedi [music-dashboard-technical-spec.md §0](./music-dashboard-technical-spec.md).
+- Lo storage file **non usa S3**: `src/utils/storage.ts` usa `firebase-admin/storage` (bucket GCS via `FIREBASE_STORAGE_BUCKET`), con lo stesso pattern di signed URL descritto qui sotto ma su provider Firebase invece che AWS. I campi `bucket`/`key` restano validi, cambia solo chi li risolve.
+- `getBandMembership` (in `src/utils/band-access.ts`, chiamata su quasi ogni endpoint autenticato) legge via query `.where(bandId).where(userId).limit(1)` invece che con una `get()` diretta sul doc ID deterministico `{bandId}_{userId}` già definito in `buildBandMembershipDocId` (usato solo in scrittura, in `bands` e `invites/accept`). Vale la pena allinearla: eviterebbe l'indice composito e sarebbe una singola read invece di una query su ogni chiamata autenticata.
 
 ## Collezioni principali
 
@@ -149,8 +156,8 @@ Collezione Better Auth esistente: `users/{userId}`
 
 ## Security notes pragmatiche (MVP)
 
-- Bucket S3 privato, accesso file via presigned URL a scadenza breve.
+- Bucket Firebase Storage privato, accesso file via signed URL a scadenza breve (15 min upload / 1h download, vedi `src/utils/storage.ts`).
 - In Firestore non salvare token inviti in chiaro: solo hash.
 - Email invito con dati minimi (no dati sensibili).
 - Retention log base (audit) e minimizzazione payload.
-- Preferire region UE per Firestore e S3 dove possibile.
+- Preferire region UE per Firestore e Firebase Storage dove possibile.

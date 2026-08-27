@@ -1,5 +1,16 @@
 # Music Dashboard – Technical Spec (MVP → V1)
 
+## 0) Stato implementazione (aggiornato 2026-08-27)
+
+Sprint 1, 2 e 3 sono **completati e superati**: nav Home+Settings, tab `Live & Booking`/`Documents`/`Calendar`/`Manage Users`, CRUD locali/booking/gig, upload/consultazione documenti con signed URL, vista calendario mensile con merge booking confermati + gig — tutto in produzione sul branch principale.
+
+Cose da sapere per chi riprende in mano il progetto:
+
+- **Domain model spostato**: il file `src/interfaces/music.ts` descritto in sezione 4 non è mai stato creato. I tipi sono finiti divisi in `src/interfaces/{bands,live,documents,calendar,users,settings}.ts`. Il modello effettivo è anche più ampio di quanto descritto qui sotto: nel frattempo è stata costruita un'intera architettura multi-band con ruoli, inviti e permessi (`bands`, `band_memberships`, `band_invites`, `audit_logs` — vedi [schema-setup.md](./schema-setup.md)) che questo documento non menziona affatto. Consultare `schema-setup.md` per lo stato reale dei dati.
+- **Setlist collaborative**: la collezione `setlists` (già in schema-setup.md) ha API REST complete (`GET/POST /api/bands/[bandId]/setlists`, `GET/PATCH/DELETE .../[setlistId]`) e permessi dedicati (`SETLIST_READ_ALL`, `SETLIST_READ_PUBLISHED`, `SETLIST_WRITE`), ma **non esiste alcuna UI**: nessun tab Settings, nessun `Tab.SETLISTS`, nessun `src/features/setlists/*`. È il pezzo di lavoro rimasto a metà — tutto il resto (bands, documents, invites, gigs, bookings) ha sia backend che frontend, i setlist solo backend.
+- **Stub non funzionanti**: `Settings > Profile` e `Settings > Security` hanno handler placeholder (`// TODO: update user profile`, `// TODO: call auth API`) — i form esistono ma non salvano nulla.
+- **Nessun test automatico**: non ci sono file `*.test.ts(x)` nel repo nonostante `jest`/`@testing-library` siano tra le devDependencies e referenziati nello script `test`.
+
 ## 1) Obiettivo
 Portare la dashboard da template generico a workspace operativo per musicisti/band, mantenendo **Home** e **Settings** come entry-point principali e concentrando in Settings la parte di gestione.
 
@@ -175,21 +186,31 @@ Widget previsti:
 
 ## 8) Sprint Plan operativo
 
-### Sprint 1 (UI Foundation)
+### Sprint 1 (UI Foundation) — ✅ fatto
 - Allineamento navigation (solo Home + Settings).
-- Home con 4 widget musicali base.
-- Aggiunta tab `Live & Booking`, `Documents`, `Calendar` in Settings.
-- Mock data e tipi in `src/interfaces/music.ts`.
+- Home con widget musicali (booking, live, documents, calendar, users, quick actions).
+- Aggiunta tab `Live & Booking`, `Documents`, `Calendar`, `Manage Users` in Settings.
+- Tipi definitivi divisi per dominio in `src/interfaces/*` (non un unico `music.ts`, vedi §0).
 
-### Sprint 2 (Live & Booking)
-- CRUD base locali.
-- CRUD base booking/date live.
-- Filtri per stato e ricerca locale.
+### Sprint 2 (Live & Booking) — ✅ fatto
+- CRUD locali (`/api/venues`).
+- CRUD booking/date live (`/api/bookings`, `/api/gigs`).
+- Filtri per stato e ricerca locale in `src/components/settings/live/live.tsx`.
 
-### Sprint 3 (Documents + Calendar)
-- Upload documento statico + elenco + filtri.
+### Sprint 3 (Documents + Calendar) — ✅ fatto
+- Upload documento (signed URL Firebase Storage) + elenco + filtri categoria.
 - Calendario mensile con eventi di tutti gli stati.
-- Collegamento evento -> dettaglio rapido.
+- Collegamento evento -> dettaglio rapido (drawer).
+
+### Sprint 4 (non pianificato qui, ma costruito) — ✅ fatto
+- Multi-band, ruoli (`admin`/`member`/`guest`), inviti tokenizzati, permessi granulari — vedi `schema-setup.md`.
+
+### Sprint 5 — Setlists UI — ⏳ da fare
+- Backend pronto (API + permessi + tipi). Manca: tab Settings, `src/features/setlists/*` (repository/selectors), editor canzoni con `position` drag-reorder, badge draft/published.
+
+### Sprint 6 — rifiniture — ⏳ da fare
+- Rendere funzionanti i salvataggi in `Settings > Profile` e `Settings > Security` (oggi sono TODO stub).
+- Copertura test (jest è configurato, zero test scritti finora).
 
 ---
 
