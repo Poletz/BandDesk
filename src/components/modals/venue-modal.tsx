@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from 'react';
-import { isAxiosError } from 'axios';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { Button, Group, Modal, SimpleGrid, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { Actions, Venue } from '@/interfaces';
-import { http } from '@/utils/http';
+import { getApiErrorMessage, http } from '@/utils/http';
 import { parseVenueSchema } from '@/utils/zod-interfaces';
 import { PhoneField } from './_internal/phone-input';
 
@@ -97,12 +96,10 @@ export const VenueModal = ({ opened, close, type, venue, onSubmit }: VenueModelP
         });
       }
     } catch (err) {
-      if (isAxiosError(err)) {
-        showNotification({
-          message: 'An error occurred. Please try again later.',
-          color: 'red',
-        });
-      }
+      showNotification({
+        message: getApiErrorMessage(err, 'An error occurred. Please try again later.'),
+        color: 'red',
+      });
     }
   });
 

@@ -52,11 +52,15 @@ http.interceptors.response.use(
 );
 
 export function getApiErrorMessage(error: unknown, fallback = 'An unexpected error occurred.') {
-  if (!axios.isAxiosError<ApiErrorResponse>(error)) {
-    return fallback;
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return error.response?.data?.message || error.message || fallback;
   }
 
-  return error.response?.data?.message || error.message || fallback;
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
 }
 
 export function getApiErrorCode(error: unknown): ApiErrorCode | undefined {
@@ -69,4 +73,15 @@ export function getApiErrorCode(error: unknown): ApiErrorCode | undefined {
 
 export function isApiError(error: unknown): error is AxiosError<ApiErrorResponse> {
   return axios.isAxiosError<ApiErrorResponse>(error);
+}
+
+export async function uploadFileToStorage(uploadUrl: string, file: File): Promise<void> {
+  const response = await fetch(uploadUrl, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type },
+  });
+  if (!response.ok) {
+    throw new Error(`Storage upload failed: ${response.status}`);
+  }
 }

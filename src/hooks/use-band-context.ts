@@ -30,6 +30,7 @@ export const useBandContext = () => {
         queryClient.invalidateQueries({ queryKey: ['live-data'] }),
         queryClient.invalidateQueries({ queryKey: ['calendar-data'] }),
         queryClient.invalidateQueries({ queryKey: ['documents'] }),
+        queryClient.invalidateQueries({ queryKey: ['setlists'] }),
       ]);
     },
   });

@@ -1,14 +1,17 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconEdit, IconEditOff } from '@tabler/icons-react';
+import { IconCamera } from '@tabler/icons-react';
+import { isAxiosError } from 'axios';
 import { Session, User } from 'better-auth';
 import {
   ActionIcon,
   Avatar,
+  Box,
   Button,
+  Divider,
   Group,
   Skeleton,
   Stack,
@@ -18,14 +21,20 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
-import { http } from '@/utils/http';
+import { BandProfileForm } from '@/components/settings/profile/band-profile-form';
+import { authClient } from '@/utils/auth-client';
+import { getApiErrorMessage, http, uploadFileToStorage } from '@/utils/http';
+
+const ALLOWED_AVATAR_TYPES = 'image/png,image/jpeg,image/webp';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [editable, setEditable] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const session = async () => {
@@ -36,7 +45,6 @@ export default function ProfileSettingsPage() {
           user: User | null;
         };
 
-        console.log('SESSION CLIENT!!!!!', session, user);
         if (!session || dayjs(session.expiresAt).isBefore(dayjs()) || !user) {
           showNotification({
             message: "Authentication failed. You'll be redirected to the Login page",
@@ -51,7 +59,19 @@ export default function ProfileSettingsPage() {
         form.setInitialValues({ email: user.email, name: user.name });
         form.setValues({ email: user.email, name: user.name });
       } catch (error) {
-        console.error(error);
+        if (!isAxiosError(error)) {
+          return showNotification({
+            message: 'An unexpected error occurred. Please try again',
+            color: 'orange.2',
+            title: 'Unexpected Error',
+          });
+        }
+
+        showNotification({
+          message: error.message,
+          color: 'red.4',
+          title: error.name,
+        });
       } finally {
         setLoading(false);
       }
@@ -65,45 +85,126 @@ export default function ProfileSettingsPage() {
       name: '',
       email: '',
     },
+    validate: {
+      name: (value) => (value.trim().length > 0 ? null : 'Name is required'),
+    },
   });
 
-  const handleSave = (values: typeof form.values) => {
-    console.log(values);
-    // TODO: update user profile
+  const handleSave = async (values: typeof form.values) => {
+    setSaving(true);
+    try {
+      const { error } = await authClient.updateUser({ name: values.name.trim() });
+      if (error) {
+        throw new Error(error.message);
+      }
+      setUser((current) => (current ? { ...current, name: values.name.trim() } : current));
+      showNotification({ message: 'Profile updated successfully.', color: 'green' });
+    } catch (error) {
+      showNotification({
+        message: getApiErrorMessage(error, 'Unable to update profile. Please try again.'),
+        color: 'red',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) {
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const { data: uploadData } = await http.post<{ uploadUrl: string; key: string }>(
+        '/api/users/avatar-upload-url',
+        {
+          fileName: file.name,
+          contentType: file.type,
+          fileSizeBytes: file.size,
+        }
+      );
+
+      await uploadFileToStorage(uploadData.uploadUrl, file);
+
+      const { data: commitData } = await http.post<{ url: string }>('/api/users/avatar', {
+        key: uploadData.key,
+      });
+
+      const { error } = await authClient.updateUser({ image: commitData.url });
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setUser((current) => (current ? { ...current, image: commitData.url } : current));
+      showNotification({ message: 'Avatar updated successfully.', color: 'green' });
+    } catch (error) {
+      showNotification({
+        message: getApiErrorMessage(error, 'Unable to update avatar. Please try again.'),
+        color: 'red',
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   return (
-    <Stack flex={1} maw={480}>
-      <Group wrap="nowrap">
-        <Group wrap="nowrap" justify="flex-start" mr="auto">
-          <Skeleton visible={loading}>
-            <Avatar size="lg" radius="xl" />
-          </Skeleton>
-          <Skeleton flex={1} w="100%" visible={loading}>
-            <Text fw="bold" flex={1} w="100%">
-              {user?.name}
-            </Text>
-          </Skeleton>
+    <Group flex={1} justify="space-around" align="flex-start">
+      <Stack flex={1} maw={480}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ALLOWED_AVATAR_TYPES}
+          style={{ display: 'none' }}
+          onChange={handleAvatarFileSelected}
+        />
+        <Group wrap="nowrap">
+          <Group wrap="nowrap" justify="flex-start" flex={1}>
+            <Skeleton visible={loading} w="fit-content">
+              <Box pos="relative" w="fit-content">
+                <Avatar size="lg" radius="xl" src={user?.image ?? undefined} />
+                <Tooltip label="Change avatar">
+                  <ActionIcon
+                    disabled={uploadingAvatar}
+                    loading={uploadingAvatar}
+                    variant="filled"
+                    size="sm"
+                    radius="xl"
+                    pos="absolute"
+                    bottom={-2}
+                    right={-2}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <IconCamera size={14} />
+                  </ActionIcon>
+                </Tooltip>
+              </Box>
+            </Skeleton>
+            <Skeleton flex={1} w="100%" visible={loading} ml={12}>
+              <Text fw="bold" flex={1} w="100%">
+                {user?.name}
+              </Text>
+            </Skeleton>
+          </Group>
         </Group>
-        <Tooltip label="Change Avatar">
-          <ActionIcon
-            disabled={loading}
-            variant="light"
-            size={40}
-            radius="md"
-            onClick={() => setEditable(editable ? !editable : editable)}
-          >
-            {!editable ? <IconEdit size={25} /> : <IconEditOff size={25} />}
-          </ActionIcon>
-        </Tooltip>
-      </Group>
 
-      <TextInput disabled={loading || !editable} label="Name" {...form.getInputProps('name')} />
-      <TextInput disabled={loading || !editable} label="Email" {...form.getInputProps('email')} />
+        <form onSubmit={form.onSubmit(handleSave)}>
+          <Stack>
+            <TextInput disabled={loading || saving} label="Name" {...form.getInputProps('name')} />
+            <TextInput disabled label="Email" {...form.getInputProps('email')} />
 
-      <Button disabled={loading || !editable} onClick={() => form.onSubmit(handleSave)}>
-        Save changes
-      </Button>
-    </Stack>
+            <Button type="submit" disabled={loading || uploadingAvatar} loading={saving}>
+              Save changes
+            </Button>
+          </Stack>
+        </form>
+      </Stack>
+
+      <Divider orientation="vertical" />
+
+      <BandProfileForm />
+    </Group>
   );
 }

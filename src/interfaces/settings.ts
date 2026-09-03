@@ -3,6 +3,7 @@ export enum Tab {
   SECURITY = 'security',
   LIVE = 'live',
   DOCS = 'docs',
+  SETLISTS = 'setlists',
   CALENDAR = 'calendar',
   USERS = 'users',
 }

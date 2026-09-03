@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { IconDots, IconEdit, IconEyeSearch, IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import {
   ActionIcon,
@@ -39,7 +38,7 @@ import {
 import { useLiveData } from '@/hooks/use-live-data';
 import { Actions, BookingRequest, CalendarItem, GigEvent, QuickAction } from '@/interfaces';
 import { useAuthStore } from '@/store/auth';
-import { http } from '@/utils/http';
+import { getApiErrorMessage, http } from '@/utils/http';
 import { bookingStatusLabel, confirmModal, getBookingStatusColor, getTypeName } from '@/utils/misc';
 
 export const HomeComponent = () => {
@@ -96,9 +95,7 @@ export const HomeComponent = () => {
         } catch (error) {
           showNotification({
             color: 'red',
-            message: isAxiosError(error)
-              ? (error.response?.data?.message ?? t('notifications.unableLoadBooking'))
-              : t('notifications.unableLoadBooking'),
+            message: getApiErrorMessage(error, t('notifications.unableLoadBooking')),
           });
         }
         return;
@@ -111,9 +108,7 @@ export const HomeComponent = () => {
       } catch (error) {
         showNotification({
           color: 'red',
-          message: isAxiosError(error)
-            ? (error.response?.data?.message ?? t('notifications.unableLoadGig'))
-            : t('notifications.unableLoadGig'),
+          message: getApiErrorMessage(error, t('notifications.unableLoadGig')),
         });
       }
     },
@@ -140,9 +135,7 @@ export const HomeComponent = () => {
       } catch (error) {
         showNotification({
           color: 'red',
-          message: isAxiosError(error)
-            ? (error.response?.data?.message ?? t('notifications.unableLoadBooking'))
-            : t('notifications.unableLoadBooking'),
+          message: getApiErrorMessage(error, t('notifications.unableLoadBooking')),
         });
       }
     },
@@ -167,9 +160,7 @@ export const HomeComponent = () => {
       } catch (error) {
         showNotification({
           color: 'red',
-          message: isAxiosError(error)
-            ? (error.response?.data?.message ?? t('notifications.unableUpdateBooking'))
-            : t('notifications.unableUpdateBooking'),
+          message: getApiErrorMessage(error, t('notifications.unableUpdateBooking')),
         });
       } finally {
         setIsSavingBooking(false);
@@ -201,9 +192,7 @@ export const HomeComponent = () => {
           } catch (error) {
             showNotification({
               color: 'red',
-              message: isAxiosError(error)
-                ? (error.response?.data?.message ?? t('notifications.unableDeleteEvent'))
-                : t('notifications.unableDeleteEvent'),
+              message: getApiErrorMessage(error, t('notifications.unableDeleteEvent')),
             });
           }
         }

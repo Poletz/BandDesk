@@ -1,21 +1,52 @@
 'use client';
 
+import { useState } from 'react';
 import { Button, Divider, Group, Image, PasswordInput, Stack, Text, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { showNotification } from '@mantine/notifications';
 import { Provider } from '@/interfaces';
+import { authClient } from '@/utils/auth-client';
+import { getApiErrorMessage } from '@/utils/http';
 
 export default function SecuritySettingsPage({ provider }: { provider: Provider | null }) {
+  const [loading, setLoading] = useState(false);
+
   const form = useForm({
     initialValues: {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
+    validate: {
+      newPassword: (value) => (value.length >= 8 ? null : 'Password must be at least 8 characters'),
+      confirmPassword: (value, values) =>
+        value === values.newPassword ? null : 'Passwords do not match',
+    },
   });
 
-  const handleChangePassword = (values: typeof form.values) => {
-    console.log(values);
-    // TODO: call auth API
+  const handleChangePassword = async (values: typeof form.values) => {
+    setLoading(true);
+    try {
+      const { error } = await authClient.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      showNotification({ message: 'Password updated successfully.', color: 'green' });
+      form.reset();
+    } catch (error) {
+      showNotification({
+        message: getApiErrorMessage(
+          error,
+          'Unable to update password. Please check your current password and try again.'
+        ),
+        color: 'red',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,15 +75,31 @@ export default function SecuritySettingsPage({ provider }: { provider: Provider 
           </Text>
         </div>
       ) : (
-        <Stack>
-          <Title order={4}>Change password</Title>
+        <form onSubmit={form.onSubmit(handleChangePassword)}>
+          <Stack>
+            <Title order={4}>Change password</Title>
 
-          <PasswordInput label="Current password" {...form.getInputProps('currentPassword')} />
-          <PasswordInput label="New password" {...form.getInputProps('newPassword')} />
-          <PasswordInput label="Confirm new password" {...form.getInputProps('confirmPassword')} />
+            <PasswordInput
+              disabled={loading}
+              label="Current password"
+              {...form.getInputProps('currentPassword')}
+            />
+            <PasswordInput
+              disabled={loading}
+              label="New password"
+              {...form.getInputProps('newPassword')}
+            />
+            <PasswordInput
+              disabled={loading}
+              label="Confirm new password"
+              {...form.getInputProps('confirmPassword')}
+            />
 
-          <Button onClick={() => form.onSubmit(handleChangePassword)}>Update password</Button>
-        </Stack>
+            <Button type="submit" loading={loading}>
+              Update password
+            </Button>
+          </Stack>
+        </form>
       )}
 
       <Divider my="md" />

@@ -61,7 +61,9 @@
     "passwordPlaceholder": "Inserisci la tua password",
     "register": "Crea account",
     "loginFailed": "Accesso fallito",
+    "signUpFailed": "Registrazione fallita",
     "invalidCredentials": "Email o password non valide",
+    "signUpError": "Impossibile creare il tuo account. Riprova.",
     "loggingOut": "Disconnessione in corso...",
     "redirect": {
       "sessionExpired": "La tua sessione è scaduta. Effettua nuovamente l’accesso.",
@@ -123,6 +125,56 @@
         "deleteSuccess": "Documento eliminato.",
         "deleteError": "Impossibile eliminare il documento.",
         "downloadError": "Impossibile ottenere il link di download."
+      }
+    },
+    "setlists": {
+      "title": "Scalette",
+      "empty": "Nessuna scaletta presente",
+      "create": "Nuova scaletta",
+      "createModalTitle": "Nuova scaletta",
+      "editModalTitle": "Modifica scaletta",
+      "statuses": {
+        "draft": "Bozza",
+        "published": "Pubblicata"
+      },
+      "form": {
+        "title": "Titolo",
+        "titlePlaceholder": "Titolo della scaletta",
+        "titleTooShort": "Il titolo deve avere almeno 2 caratteri",
+        "songTitle": "Titolo brano",
+        "songArtist": "Artista",
+        "songKey": "Tonalità",
+        "songNotes": "Note",
+        "addSong": "Aggiungi brano",
+        "submit": "Salva",
+        "cancel": "Annulla"
+      },
+      "table": {
+        "title": "Titolo",
+        "status": "Stato",
+        "songCount": "Brani",
+        "lastModified": "Ultima modifica"
+      },
+      "actions": {
+        "edit": "Modifica",
+        "publish": "Pubblica",
+        "unpublish": "Riporta a bozza",
+        "delete": "Elimina"
+      },
+      "confirm": {
+        "deleteTitle": "Eliminare la scaletta?",
+        "deleteBody": "Questa azione non può essere annullata."
+      },
+      "notifications": {
+        "createSuccess": "Scaletta creata.",
+        "createError": "Impossibile creare la scaletta.",
+        "updateSuccess": "Scaletta salvata.",
+        "updateError": "Impossibile salvare la scaletta.",
+        "deleteSuccess": "Scaletta eliminata.",
+        "deleteError": "Impossibile eliminare la scaletta.",
+        "publishSuccess": "Scaletta pubblicata.",
+        "unpublishSuccess": "Scaletta riportata a bozza.",
+        "statusError": "Impossibile aggiornare lo stato della scaletta."
       }
     },
     "calendar": {

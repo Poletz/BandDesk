@@ -29,6 +29,7 @@ import { showNotification } from '@mantine/notifications';
 import { documentsRepository } from '@/features/documents';
 import { useDocumentsData } from '@/hooks/use-documents-data';
 import { categoryLabel, DocumentCategory } from '@/interfaces';
+import { getApiErrorMessage } from '@/utils/http';
 
 const CATEGORY_OPTIONS: DocumentCategory[] = [
   'technical-rider',
@@ -103,8 +104,11 @@ export const DocumentsComponent = () => {
       showNotification({ color: 'green', message: t('notifications.uploadSuccess') });
       resetUploadForm();
       closeUpload();
-    } catch {
-      showNotification({ color: 'red', message: t('notifications.uploadError') });
+    } catch (error) {
+      showNotification({
+        color: 'red',
+        message: getApiErrorMessage(error, t('notifications.uploadError')),
+      });
     } finally {
       setIsUploading(false);
     }
@@ -118,8 +122,11 @@ export const DocumentsComponent = () => {
     try {
       const url = await documentsRepository.getDownloadUrl(activeBandId, documentId);
       window.open(url, '_blank');
-    } catch {
-      showNotification({ color: 'red', message: t('notifications.downloadError') });
+    } catch (error) {
+      showNotification({
+        color: 'red',
+        message: getApiErrorMessage(error, t('notifications.downloadError')),
+      });
     } finally {
       setDownloadingId(null);
     }
@@ -132,8 +139,11 @@ export const DocumentsComponent = () => {
       void queryClient.invalidateQueries({ queryKey: ['documents', activeBandId] });
       showNotification({ color: 'green', message: t('notifications.deleteSuccess') });
     },
-    onError: () => {
-      showNotification({ color: 'red', message: t('notifications.deleteError') });
+    onError: (error) => {
+      showNotification({
+        color: 'red',
+        message: getApiErrorMessage(error, t('notifications.deleteError')),
+      });
     },
   });
 

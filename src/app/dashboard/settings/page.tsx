@@ -10,6 +10,7 @@ import { DocumentsComponent } from '@/components/settings/documents';
 import { LiveAndBookingComponent } from '@/components/settings/live';
 import ProfileSettingsPage from '@/components/settings/profile/profile';
 import SecuritySettingsPage from '@/components/settings/security/security';
+import { SetlistsComponent } from '@/components/settings/setlists';
 import { Provider, Tab } from '@/interfaces';
 import { http } from '@/utils/http';
 
@@ -55,6 +56,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           <Tabs.Tab value={Tab.SECURITY}>{t('security.title')}</Tabs.Tab>
           <Tabs.Tab value={Tab.LIVE}>{t('live.title')}</Tabs.Tab>
           <Tabs.Tab value={Tab.DOCS}>{t('documents.title')}</Tabs.Tab>
+          <Tabs.Tab value={Tab.SETLISTS}>{t('setlists.title')}</Tabs.Tab>
           <Tabs.Tab value={Tab.CALENDAR}>{t('calendar.title')}</Tabs.Tab>
           <Tabs.Tab value={Tab.USERS}>{t('users.title')}</Tabs.Tab>
         </Tabs.List>
@@ -70,6 +72,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         </Tabs.Panel>
         <Tabs.Panel value="docs" style={{ display: 'flex', justifyContent: 'center' }}>
           <DocumentsComponent />
+        </Tabs.Panel>
+        <Tabs.Panel value="setlists" style={{ display: 'flex', justifyContent: 'center' }}>
+          <SetlistsComponent />
         </Tabs.Panel>
         <Tabs.Panel value="calendar" style={{ display: 'flex', justifyContent: 'center' }}>
           <CalendarComponent />

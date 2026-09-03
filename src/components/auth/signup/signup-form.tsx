@@ -12,6 +12,7 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
 import { authClient } from '@/utils/auth-client';
+import { getApiErrorMessage } from '@/utils/http';
 import { signUpSchemaValidation } from '@/utils/zod-interfaces';
 
 type SignUpFormValues = z.infer<typeof signUpSchemaValidation>;
@@ -52,8 +53,8 @@ export const SignUpForm = () => {
     } catch (err) {
       showNotification({
         color: 'red',
-        title: t('loginFailed'),
-        message: t('invalidCredentials'),
+        title: t('signUpFailed'),
+        message: getApiErrorMessage(err, t('signUpError')),
       });
     } finally {
       setLoading(false);

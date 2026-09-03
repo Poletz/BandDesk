@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
 import { IconEdit, IconEye, IconPlus, IconTicket, IconTrash } from '@tabler/icons-react';
-import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import {
   ActionIcon,
@@ -23,7 +22,7 @@ import { BookingModal, GigModal, VenueModal } from '@/components/modals';
 import { BOOKING_STATUSES } from '@/features';
 import { useLiveData } from '@/hooks/use-live-data';
 import { Actions, BookingRequest, GigEvent, Venue } from '@/interfaces';
-import { http } from '@/utils/http';
+import { getApiErrorMessage, http } from '@/utils/http';
 import { bookingStatusLabel, confirmModal, getDefaultGigFromBooking } from '@/utils/misc';
 
 export const LiveAndBookingComponent = () => {
@@ -75,9 +74,10 @@ export const LiveAndBookingComponent = () => {
         closeVenueModal();
         await refetch();
       } catch (err) {
-        if (isAxiosError(err)) {
-          showNotification({ message: 'Unable to save venue.', color: 'red' });
-        }
+        showNotification({
+          message: getApiErrorMessage(err, 'Unable to save venue.'),
+          color: 'red',
+        });
       }
     },
     [selectedVenue, refetch, closeVenueModal]
@@ -105,9 +105,10 @@ export const LiveAndBookingComponent = () => {
         closeBookingModal();
         await refetch();
       } catch (err) {
-        if (isAxiosError(err)) {
-          showNotification({ message: 'Unable to save booking.', color: 'red' });
-        }
+        showNotification({
+          message: getApiErrorMessage(err, 'Unable to save booking.'),
+          color: 'red',
+        });
       } finally {
         setLoading(false);
       }
@@ -140,10 +141,7 @@ export const LiveAndBookingComponent = () => {
         closeGigModal();
         await refetch();
       } catch (err) {
-        if (isAxiosError(err)) {
-          const message = err.response?.data?.message ?? 'Unable to save gig.';
-          showNotification({ message, color: 'red' });
-        }
+        showNotification({ message: getApiErrorMessage(err, 'Unable to save gig.'), color: 'red' });
       } finally {
         setLoading(false);
       }
@@ -323,9 +321,9 @@ export const LiveAndBookingComponent = () => {
                                   await http.delete(`/api/bookings/${booking.id}`);
                                   showNotification({ message: 'Booking deleted.', color: 'green' });
                                   await refetch();
-                                } catch {
+                                } catch (err) {
                                   showNotification({
-                                    message: 'Unable to delete booking.',
+                                    message: getApiErrorMessage(err, 'Unable to delete booking.'),
                                     color: 'red',
                                   });
                                 } finally {
@@ -441,11 +439,10 @@ export const LiveAndBookingComponent = () => {
                                   showNotification({ message: 'Gig deleted.', color: 'green' });
                                   await refetch();
                                 } catch (err) {
-                                  if (isAxiosError(err)) {
-                                    const message =
-                                      err.response?.data?.message ?? 'Unable to delete gig.';
-                                    showNotification({ message, color: 'red' });
-                                  }
+                                  showNotification({
+                                    message: getApiErrorMessage(err, 'Unable to delete gig.'),
+                                    color: 'red',
+                                  });
                                 } finally {
                                   setLoading(false);
                                 }
@@ -554,9 +551,9 @@ export const LiveAndBookingComponent = () => {
                                   await http.delete(`/api/venues/${venue.id}`);
                                   showNotification({ message: 'Venue deleted.', color: 'green' });
                                   await refetch();
-                                } catch {
+                                } catch (err) {
                                   showNotification({
-                                    message: 'Unable to delete venue.',
+                                    message: getApiErrorMessage(err, 'Unable to delete venue.'),
                                     color: 'red',
                                   });
                                 }

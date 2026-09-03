@@ -9,7 +9,10 @@
     },
     "actions": {
       "delete": "Delete",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "create": "Create",
+      "disable": "Disable"
     },
     "confirm": {
       "cannotUndo": "This action cannot be undone."
@@ -58,7 +61,9 @@
     "passwordPlaceholder": "Enter your password",
     "register": "Register",
     "loginFailed": "Login failed",
+    "signUpFailed": "Sign up failed",
     "invalidCredentials": "Invalid email or password",
+    "signUpError": "Unable to create your account. Please try again.",
     "loggingOut": "Logging out...",
     "redirect": {
       "sessionExpired": "Your session expired. Please sign in again.",
@@ -68,9 +73,15 @@
   },
   "Settings": {
     "title": "Settings",
-    "profile": { "title": "Profile" },
-    "security": { "title": "Account security" },
-    "live": { "title": "Live & Booking" },
+    "profile": {
+      "title": "Profile"
+    },
+    "security": {
+      "title": "Account security"
+    },
+    "live": {
+      "title": "Live & Booking"
+    },
     "documents": {
       "title": "Documents",
       "empty": "No documents uploaded yet",
@@ -114,6 +125,56 @@
         "deleteSuccess": "Document deleted.",
         "deleteError": "Unable to delete document.",
         "downloadError": "Unable to get download link."
+      }
+    },
+    "setlists": {
+      "title": "Setlists",
+      "empty": "No setlists yet",
+      "create": "New setlist",
+      "createModalTitle": "New setlist",
+      "editModalTitle": "Edit setlist",
+      "statuses": {
+        "draft": "Draft",
+        "published": "Published"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Setlist title",
+        "titleTooShort": "Title must be at least 2 characters",
+        "songTitle": "Song title",
+        "songArtist": "Artist",
+        "songKey": "Key",
+        "songNotes": "Notes",
+        "addSong": "Add song",
+        "submit": "Save",
+        "cancel": "Cancel"
+      },
+      "table": {
+        "title": "Title",
+        "status": "Status",
+        "songCount": "Songs",
+        "lastModified": "Last modified"
+      },
+      "actions": {
+        "edit": "Edit",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "delete": "Delete"
+      },
+      "confirm": {
+        "deleteTitle": "Delete setlist?",
+        "deleteBody": "This action cannot be undone."
+      },
+      "notifications": {
+        "createSuccess": "Setlist created.",
+        "createError": "Unable to create setlist.",
+        "updateSuccess": "Setlist saved.",
+        "updateError": "Unable to save setlist.",
+        "deleteSuccess": "Setlist deleted.",
+        "deleteError": "Unable to delete setlist.",
+        "publishSuccess": "Setlist published.",
+        "unpublishSuccess": "Setlist moved to draft.",
+        "statusError": "Unable to update setlist status."
       }
     },
     "calendar": {
@@ -199,6 +260,103 @@
       "disabled": "Disabled",
       "description": "Manage team roles and account statuses from the Settings area.",
       "goTo": "Go to Manage Users"
+    }
+  },
+  "SettingsModal": {
+    "bookings_create": {
+      "title": "Create booking",
+      "submitLabel": "Create"
+    },
+    "bookings_update": {
+      "title": "Edit booking",
+      "submitLabel": "Save changes"
+    },
+    "bookings_view": {
+      "title": "View booking",
+      "submitLabel": "Close",
+      "createdAt": "Created on",
+      "updatedAt": "Updated on"
+    },
+    "bookings_common": {
+      "cancel": "Cancel",
+      "venue": "Venue",
+      "requestedDate": "Requested date",
+      "status": "Status",
+      "feeProposal": "Fee (€)",
+      "notes": "Notes"
+    },
+    "gigs_create": {
+      "title": "Create gig",
+      "submitLabel": "Create"
+    },
+    "gigs_update": {
+      "title": "Edit gig",
+      "submitLabel": "Save changes"
+    },
+    "gigs_view": {
+      "title": "View gig",
+      "submitLabel": "Close"
+    },
+    "gigs_common": {
+      "gigTitle": "Event title",
+      "linkedBooking": "Linked booking",
+      "linkedBookingPlaceholder": "Optional: link a confirmed gig date",
+      "venue": "Venue",
+      "venuePlaceholder": "Select venue",
+      "gigDate": "Event date",
+      "gigDatePlaceholder": "Select date and time",
+      "status": "Status",
+      "setlist": "Setlist",
+      "setlistPlaceholder": "Setlist name",
+      "notes": "Notes",
+      "notesPlaceholder": "Event notes",
+      "cancel": "Cancel",
+      "linkedText": "Venue, date and status are synced from the linked booking."
+    },
+    "venues_create": {
+      "title": "Create venue",
+      "submitLabel": "Create"
+    },
+    "venues_update": {
+      "title": "Edit venue",
+      "submitLabel": "Save changes"
+    },
+    "venues_view": {
+      "title": "View venue",
+      "submitLabel": "Close"
+    },
+    "venues_common": {
+      "name": "Venue name",
+      "city": "City",
+      "address": "Address",
+      "contactName": "Contact name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "notes": "Notes",
+      "cancel": "Cancel"
+    }
+  },
+  "Statuses": {
+    "booking": {
+      "Draft": "Draft",
+      "Requested": "Requested",
+      "Negotiating": "Negotiating",
+      "Confirmed": "Confirmed",
+      "Rejected": "Rejected",
+      "Cancelled": "Cancelled"
+    },
+    "gig": {
+      "draft": "Draft",
+      "requested": "Requested",
+      "negotiating": "Negotiating",
+      "confirmed": "Confirmed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "calendar": {
+      "Booking": "Booking",
+      "Gig": "Gig",
+      "Reminder": "Reminder"
     }
   }
 }

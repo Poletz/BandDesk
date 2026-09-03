@@ -1,5 +1,10 @@
 import { z } from 'zod/v4';
-import { ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE_BYTES } from '@/utils/storage';
+import {
+  ALLOWED_AVATAR_CONTENT_TYPES,
+  ALLOWED_CONTENT_TYPES,
+  MAX_AVATAR_SIZE_BYTES,
+  MAX_FILE_SIZE_BYTES,
+} from '@/utils/storage';
 
 const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === '' ? undefined : val), schema);
@@ -15,6 +20,7 @@ export const setlistStatusSchema = z.enum(['draft', 'published']);
 
 export const bandSocialLinksSchema = z.object({
   instagram: z.string().trim().nullable().optional(),
+  facebook: z.string().trim().nullable().optional(),
   youtube: z.string().trim().nullable().optional(),
   spotify: z.string().trim().nullable().optional(),
   tiktok: z.string().trim().nullable().optional(),
@@ -27,6 +33,7 @@ export const bandSchema = z.object({
   genres: z.array(z.string().trim().min(1)).max(10).default([]),
   city: z.string().trim().nullable().optional(),
   socials: bandSocialLinksSchema.nullable().optional(),
+  image: z.string().trim().nullable().optional(),
   visibility: bandVisibilitySchema.default('private'),
   createdByUserId: z.string().trim().min(1),
   createdAt: z.string(),
@@ -109,6 +116,7 @@ export const createBandSchema = z.object({
   socials: z
     .object({
       instagram: valueToNull(z.string().trim().nullable()).optional(),
+      facebook: valueToNull(z.string().trim().nullable()).optional(),
       youtube: valueToNull(z.string().trim().nullable()).optional(),
       spotify: valueToNull(z.string().trim().nullable()).optional(),
       tiktok: valueToNull(z.string().trim().nullable()).optional(),
@@ -116,6 +124,38 @@ export const createBandSchema = z.object({
     })
     .optional(),
   visibility: bandVisibilitySchema.default('private'),
+});
+
+export const patchBandSchema = z.object({
+  bio: valueToNull(z.string().trim().nullable()).optional(),
+  genres: z.array(z.string().trim().min(1)).max(10).optional(),
+  city: valueToNull(z.string().trim().nullable()).optional(),
+  socials: z
+    .object({
+      instagram: valueToNull(z.string().trim().nullable()).optional(),
+      facebook: valueToNull(z.string().trim().nullable()).optional(),
+      youtube: valueToNull(z.string().trim().nullable()).optional(),
+      spotify: valueToNull(z.string().trim().nullable()).optional(),
+      tiktok: valueToNull(z.string().trim().nullable()).optional(),
+      website: valueToNull(z.string().trim().nullable()).optional(),
+    })
+    .optional(),
+});
+
+export const requestAvatarUploadUrlSchema = z.object({
+  fileName: z.string().trim().min(1).max(255),
+  contentType: z.enum(ALLOWED_AVATAR_CONTENT_TYPES, {
+    error: 'File type not allowed',
+  }),
+  fileSizeBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(MAX_AVATAR_SIZE_BYTES, { error: 'File too large (max 5 MB)' }),
+});
+
+export const commitAvatarSchema = z.object({
+  key: z.string().trim().min(1),
 });
 
 export const setActiveBandSchema = z.object({
@@ -211,6 +251,8 @@ export const createDocumentSchema = z.object({
 // #endregion
 
 export type CreateBandInput = z.infer<typeof createBandSchema>;
+export type PatchBandInput = z.infer<typeof patchBandSchema>;
 export type CreateBandInviteInput = z.infer<typeof createBandInviteSchema>;
 export type CreateSetlistInput = z.infer<typeof createSetlistSchema>;
 export type PatchSetlistInput = z.infer<typeof patchSetlistSchema>;
+export type RequestAvatarUploadUrlInput = z.infer<typeof requestAvatarUploadUrlSchema>;

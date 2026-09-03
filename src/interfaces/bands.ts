@@ -21,6 +21,7 @@ export interface Band {
   genres: string[];
   city?: string | null;
   socials?: BandSocialLinks | null;
+  image?: string | null;
   visibility: BandVisibility;
   createdByUserId: string;
   createdAt: string;
@@ -101,6 +102,7 @@ export interface BandContext {
   genres: string[];
   city: string | null;
   socials: Record<string, string | null> | null;
+  image: string | null;
   visibility: BandVisibility;
   createdByUserId: string;
   createdAt: string;

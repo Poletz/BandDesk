@@ -5,12 +5,8 @@ import {
   validationError,
 } from '@/utils/api-response-helper';
 import { dbUsers, getServerSession } from '@/utils/auth';
-import {
-  bandMembershipsDB,
-  bandsDB,
-  buildBandMembershipDocId,
-} from '@/utils/band-collections';
 import { listActiveMembershipsForUser, resolveUserActiveBandId } from '@/utils/band-access';
+import { bandMembershipsDB, bandsDB, buildBandMembershipDocId } from '@/utils/band-collections';
 import { bandSchema, createBandSchema } from '@/utils/zod-band';
 
 type BandContextResponse = {
@@ -20,6 +16,7 @@ type BandContextResponse = {
   genres: string[];
   city: string | null;
   socials: Record<string, string | null> | null;
+  image: string | null;
   visibility: 'public' | 'private';
   createdByUserId: string;
   createdAt: string;
@@ -41,7 +38,9 @@ export async function GET() {
 
   try {
     const memberships = await listActiveMembershipsForUser(user.id);
-    const bandDocs = await Promise.all(memberships.map((membership) => bandsDB.doc(membership.bandId).get()));
+    const bandDocs = await Promise.all(
+      memberships.map((membership) => bandsDB.doc(membership.bandId).get())
+    );
 
     const bands: BandContextResponse[] = memberships.flatMap((membership) => {
       const bandDoc = bandDocs.find((doc) => doc.id === membership.bandId);
@@ -60,6 +59,7 @@ export async function GET() {
           genres: band.genres ?? [],
           city: band.city ?? null,
           socials: band.socials ?? null,
+          image: band.image ?? null,
           visibility: band.visibility,
           createdByUserId: band.createdByUserId,
           createdAt: band.createdAt,

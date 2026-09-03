@@ -35,9 +35,11 @@ export function forbiddenItemError() {
 }
 
 export function validationError(error: ZodError) {
+  const detail = error.issues.map((issue) => issue.message).join('; ');
+
   return NextResponse.json(
     {
-      message: VALIDATION_ERROR_MESSAGE,
+      message: detail ? `${VALIDATION_ERROR_MESSAGE}: ${detail}` : VALIDATION_ERROR_MESSAGE,
       errors: treeifyError(error),
     },
     { status: 400 }
